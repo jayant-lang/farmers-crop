@@ -1,92 +1,90 @@
-export type Hex = Uint8Array | string;
-export type PrivKey = Hex | bigint;
-export type CHash = {
-    (message: Uint8Array | string): Uint8Array;
-    blockLen: number;
-    outputLen: number;
-    create(opts?: {
-        dkLen?: number;
-    }): any;
-};
-export type FHash = (message: Uint8Array | string) => Uint8Array;
+/*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
+export type TypedArray = Int8Array | Uint8ClampedArray | Uint8Array | Uint16Array | Int16Array | Uint32Array | Int32Array;
+export declare const u8: (arr: TypedArray) => Uint8Array;
+export declare const u32: (arr: TypedArray) => Uint32Array;
+export declare const createView: (arr: TypedArray) => DataView;
+export declare const rotr: (word: number, shift: number) => number;
+export declare const isLE: boolean;
 /**
  * @example bytesToHex(Uint8Array.from([0xca, 0xfe, 0x01, 0x23])) // 'cafe0123'
  */
 export declare function bytesToHex(bytes: Uint8Array): string;
-export declare function numberToHexUnpadded(num: number | bigint): string;
-export declare function hexToNumber(hex: string): bigint;
 /**
  * @example hexToBytes('cafe0123') // Uint8Array.from([0xca, 0xfe, 0x01, 0x23])
  */
 export declare function hexToBytes(hex: string): Uint8Array;
-export declare function bytesToNumberBE(bytes: Uint8Array): bigint;
-export declare function bytesToNumberLE(bytes: Uint8Array): bigint;
-export declare function numberToBytesBE(n: number | bigint, len: number): Uint8Array;
-export declare function numberToBytesLE(n: number | bigint, len: number): Uint8Array;
-export declare function numberToVarBytesBE(n: number | bigint): Uint8Array;
-/**
- * Takes hex string or Uint8Array, converts to Uint8Array.
- * Validates output length.
- * Will throw error for other types.
- * @param title descriptive title for an error e.g. 'private key'
- * @param hex hex string or Uint8Array
- * @param expectedLength optional, will compare to result array's length
- * @returns
- */
-export declare function ensureBytes(title: string, hex: Hex, expectedLength?: number): Uint8Array;
-/**
- * Copies several Uint8Arrays into one.
- */
-export declare function concatBytes(...arrays: Uint8Array[]): Uint8Array;
-export declare function equalBytes(b1: Uint8Array, b2: Uint8Array): boolean;
+export declare const nextTick: () => Promise<void>;
+export declare function asyncLoop(iters: number, tick: number, cb: (i: number) => void): Promise<void>;
 /**
  * @example utf8ToBytes('abc') // new Uint8Array([97, 98, 99])
  */
 export declare function utf8ToBytes(str: string): Uint8Array;
+export type Input = Uint8Array | string;
 /**
- * Calculates amount of bits in a bigint.
- * Same as `n.toString(2).length`
+ * Normalizes (non-hex) string or Uint8Array to Uint8Array.
+ * Warning: when Uint8Array is passed, it would NOT get copied.
+ * Keep in mind for future mutable operations.
  */
-export declare function bitLen(n: bigint): number;
+export declare function toBytes(data: Input): Uint8Array;
 /**
- * Gets single bit at position.
- * NOTE: first bit position is 0 (same as arrays)
- * Same as `!!+Array.from(n.toString(2)).reverse()[pos]`
+ * Copies several Uint8Arrays into one.
  */
-export declare function bitGet(n: bigint, pos: number): bigint;
+export declare function concatBytes(...arrays: Uint8Array[]): Uint8Array;
+export declare abstract class Hash<T extends Hash<T>> {
+    abstract blockLen: number;
+    abstract outputLen: number;
+    abstract update(buf: Input): this;
+    abstract digestInto(buf: Uint8Array): void;
+    abstract digest(): Uint8Array;
+    /**
+     * Resets internal state. Makes Hash instance unusable.
+     * Reset is impossible for keyed hashes if key is consumed into state. If digest is not consumed
+     * by user, they will need to manually call `destroy()` when zeroing is necessary.
+     */
+    abstract destroy(): void;
+    /**
+     * Clones hash instance. Unsafe: doesn't check whether `to` is valid. Can be used as `clone()`
+     * when no options are passed.
+     * Reasons to use `_cloneInto` instead of clone: 1) performance 2) reuse instance => all internal
+     * buffers are overwritten => causes buffer overwrite which is used for digest in some cases.
+     * There are no guarantees for clean-up because it's impossible in JS.
+     */
+    abstract _cloneInto(to?: T): T;
+    clone(): T;
+}
 /**
- * Sets single bit at position.
+ * XOF: streaming API to read digest in chunks.
+ * Same as 'squeeze' in keccak/k12 and 'seek' in blake3, but more generic name.
+ * When hash used in XOF mode it is up to user to call '.destroy' afterwards, since we cannot
+ * destroy state, next call can require more bytes.
  */
-export declare const bitSet: (n: bigint, pos: number, value: boolean) => bigint;
-/**
- * Calculate mask for N bits. Not using ** operator with bigints because of old engines.
- * Same as BigInt(`0b${Array(i).fill('1').join('')}`)
- */
-export declare const bitMask: (n: number) => bigint;
-type Pred<T> = (v: Uint8Array) => T | undefined;
-/**
- * Minimal HMAC-DRBG from NIST 800-90 for RFC6979 sigs.
- * @returns function that will call DRBG until 2nd arg returns something meaningful
- * @example
- *   const drbg = createHmacDRBG<Key>(32, 32, hmac);
- *   drbg(seed, bytesToKey); // bytesToKey must return Key or undefined
- */
-export declare function createHmacDrbg<T>(hashLen: number, qByteLen: number, hmacFn: (key: Uint8Array, ...messages: Uint8Array[]) => Uint8Array): (seed: Uint8Array, predicate: Pred<T>) => T;
-declare const validatorFns: {
-    readonly bigint: (val: any) => boolean;
-    readonly function: (val: any) => boolean;
-    readonly boolean: (val: any) => boolean;
-    readonly string: (val: any) => boolean;
-    readonly stringOrUint8Array: (val: any) => boolean;
-    readonly isSafeInteger: (val: any) => boolean;
-    readonly array: (val: any) => boolean;
-    readonly field: (val: any, object: any) => any;
-    readonly hash: (val: any) => boolean;
+export type HashXOF<T extends Hash<T>> = Hash<T> & {
+    xof(bytes: number): Uint8Array;
+    xofInto(buf: Uint8Array): Uint8Array;
 };
-type Validator = keyof typeof validatorFns;
-type ValMap<T extends Record<string, any>> = {
-    [K in keyof T]?: Validator;
+type EmptyObj = {};
+export declare function checkOpts<T1 extends EmptyObj, T2 extends EmptyObj>(defaults: T1, opts?: T2): T1 & T2;
+export type CHash = ReturnType<typeof wrapConstructor>;
+export declare function wrapConstructor<T extends Hash<T>>(hashCons: () => Hash<T>): {
+    (msg: Input): Uint8Array;
+    outputLen: number;
+    blockLen: number;
+    create(): Hash<T>;
 };
-export declare function validateObject<T extends Record<string, any>>(object: T, validators: ValMap<T>, optValidators?: ValMap<T>): T;
+export declare function wrapConstructorWithOpts<H extends Hash<H>, T extends Object>(hashCons: (opts?: T) => Hash<H>): {
+    (msg: Input, opts?: T): Uint8Array;
+    outputLen: number;
+    blockLen: number;
+    create(opts: T): Hash<H>;
+};
+export declare function wrapXOFConstructorWithOpts<H extends HashXOF<H>, T extends Object>(hashCons: (opts?: T) => HashXOF<H>): {
+    (msg: Input, opts?: T): Uint8Array;
+    outputLen: number;
+    blockLen: number;
+    create(opts: T): HashXOF<H>;
+};
+/**
+ * Secure PRNG. Uses `crypto.getRandomValues`, which defers to OS.
+ */
+export declare function randomBytes(bytesLength?: number): Uint8Array;
 export {};
-//# sourceMappingURL=utils.d.ts.map

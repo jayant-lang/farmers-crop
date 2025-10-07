@@ -1,13 +1,16 @@
-import { hash as assertHash, bytes as assertBytes, exists as assertExists } from './_assert.js';
-import { Hash, toBytes } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.hmac = exports.HMAC = void 0;
+const _assert_js_1 = require("./_assert.js");
+const utils_js_1 = require("./utils.js");
 // HMAC (RFC 2104)
-export class HMAC extends Hash {
+class HMAC extends utils_js_1.Hash {
     constructor(hash, _key) {
         super();
         this.finished = false;
         this.destroyed = false;
-        assertHash(hash);
-        const key = toBytes(_key);
+        (0, _assert_js_1.hash)(hash);
+        const key = (0, utils_js_1.toBytes)(_key);
         this.iHash = hash.create();
         if (typeof this.iHash.update !== 'function')
             throw new Error('Expected instance of class which extends utils.Hash');
@@ -29,13 +32,13 @@ export class HMAC extends Hash {
         pad.fill(0);
     }
     update(buf) {
-        assertExists(this);
+        (0, _assert_js_1.exists)(this);
         this.iHash.update(buf);
         return this;
     }
     digestInto(out) {
-        assertExists(this);
-        assertBytes(out, this.outputLen);
+        (0, _assert_js_1.exists)(this);
+        (0, _assert_js_1.bytes)(out, this.outputLen);
         this.finished = true;
         this.iHash.digestInto(out);
         this.oHash.update(out);
@@ -66,12 +69,14 @@ export class HMAC extends Hash {
         this.iHash.destroy();
     }
 }
+exports.HMAC = HMAC;
 /**
  * HMAC: RFC2104 message authentication code.
  * @param hash - function that would be used e.g. sha256
  * @param key - message key
  * @param message - message data
  */
-export const hmac = (hash, key, message) => new HMAC(hash, key).update(message).digest();
-hmac.create = (hash, key) => new HMAC(hash, key);
+const hmac = (hash, key, message) => new HMAC(hash, key).update(message).digest();
+exports.hmac = hmac;
+exports.hmac.create = (hash, key) => new HMAC(hash, key);
 //# sourceMappingURL=hmac.js.map

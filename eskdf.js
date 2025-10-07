@@ -1,26 +1,31 @@
-import { bytes as assertBytes } from './_assert.js';
-import { hkdf } from './hkdf.js';
-import { sha256 } from './sha256.js';
-import { pbkdf2 as _pbkdf2 } from './pbkdf2.js';
-import { scrypt as _scrypt } from './scrypt.js';
-import { bytesToHex, createView, hexToBytes, toBytes } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.eskdf = exports.deriveMainSeed = exports.pbkdf2 = exports.scrypt = void 0;
+const _assert_js_1 = require("./_assert.js");
+const hkdf_js_1 = require("./hkdf.js");
+const sha256_js_1 = require("./sha256.js");
+const pbkdf2_js_1 = require("./pbkdf2.js");
+const scrypt_js_1 = require("./scrypt.js");
+const utils_js_1 = require("./utils.js");
 // A tiny KDF for various applications like AES key-gen.
 // Uses HKDF in a non-standard way, so it's not "KDF-secure", only "PRF-secure".
 // Which is good enough: assume sha2-256 retained preimage resistance.
 const SCRYPT_FACTOR = 2 ** 19;
 const PBKDF2_FACTOR = 2 ** 17;
 // Scrypt KDF
-export function scrypt(password, salt) {
-    return _scrypt(password, salt, { N: SCRYPT_FACTOR, r: 8, p: 1, dkLen: 32 });
+function scrypt(password, salt) {
+    return (0, scrypt_js_1.scrypt)(password, salt, { N: SCRYPT_FACTOR, r: 8, p: 1, dkLen: 32 });
 }
+exports.scrypt = scrypt;
 // PBKDF2-HMAC-SHA256
-export function pbkdf2(password, salt) {
-    return _pbkdf2(sha256, password, salt, { c: PBKDF2_FACTOR, dkLen: 32 });
+function pbkdf2(password, salt) {
+    return (0, pbkdf2_js_1.pbkdf2)(sha256_js_1.sha256, password, salt, { c: PBKDF2_FACTOR, dkLen: 32 });
 }
+exports.pbkdf2 = pbkdf2;
 // Combines two 32-byte byte arrays
 function xor32(a, b) {
-    assertBytes(a, 32);
-    assertBytes(b, 32);
+    (0, _assert_js_1.bytes)(a, 32);
+    (0, _assert_js_1.bytes)(b, 32);
     const arr = new Uint8Array(32);
     for (let i = 0; i < 32; i++) {
         arr[i] = a[i] ^ b[i];
@@ -33,7 +38,7 @@ function strHasLength(str, min, max) {
 /**
  * Derives main seed. Takes a lot of time. Prefer `eskdf` method instead.
  */
-export function deriveMainSeed(username, password) {
+function deriveMainSeed(username, password) {
     if (!strHasLength(username, 8, 255))
         throw new Error('invalid username');
     if (!strHasLength(password, 8, 255))
@@ -45,6 +50,7 @@ export function deriveMainSeed(username, password) {
     pbk.fill(0);
     return res;
 }
+exports.deriveMainSeed = deriveMainSeed;
 /**
  * Converts protocol & accountId pair to HKDF salt & info params.
  */
@@ -62,19 +68,19 @@ function getSaltInfo(protocol, accountId = 0) {
             throw new Error('accountId must be a number');
         if (!strHasLength(accountId, 1, 255))
             throw new Error('accountId must be valid string');
-        salt = toBytes(accountId);
+        salt = (0, utils_js_1.toBytes)(accountId);
     }
     else if (Number.isSafeInteger(accountId)) {
         if (accountId < 0 || accountId > 2 ** 32 - 1)
             throw new Error('invalid accountId');
         // Convert to Big Endian Uint32
         salt = new Uint8Array(4);
-        createView(salt).setUint32(0, accountId, false);
+        (0, utils_js_1.createView)(salt).setUint32(0, accountId, false);
     }
     else {
         throw new Error(`accountId must be a number${allowsStr ? ' or string' : ''}`);
     }
-    const info = toBytes(protocol);
+    const info = (0, utils_js_1.toBytes)(protocol);
     return { salt, info };
 }
 function countBytes(num) {
@@ -107,13 +113,13 @@ function getKeyLength(options) {
  */
 function modReduceKey(key, modulus) {
     const _1 = BigInt(1);
-    const num = BigInt('0x' + bytesToHex(key)); // check for ui8a, then bytesToNumber()
+    const num = BigInt('0x' + (0, utils_js_1.bytesToHex)(key)); // check for ui8a, then bytesToNumber()
     const res = (num % (modulus - _1)) + _1; // Remove 0 from output
     if (res < _1)
         throw new Error('expected positive number'); // Guard against bad values
     const len = key.length - 8; // FIPS requires 64 more bits = 8 bytes
     const hex = res.toString(16).padStart(len * 2, '0'); // numberToHex()
-    const bytes = hexToBytes(hex);
+    const bytes = (0, utils_js_1.hexToBytes)(hex);
     if (bytes.length !== len)
         throw new Error('invalid length of result key');
     return bytes;
@@ -128,15 +134,15 @@ function modReduceKey(key, modulus) {
  * console.log(kdf.fingerprint);
  * kdf.expire();
  */
-export async function eskdf(username, password) {
+async function eskdf(username, password) {
     // We are using closure + object instead of class because
     // we want to make `seed` non-accessible for any external function.
     let seed = deriveMainSeed(username, password);
     function deriveCK(protocol, accountId = 0, options) {
-        assertBytes(seed, 32);
+        (0, _assert_js_1.bytes)(seed, 32);
         const { salt, info } = getSaltInfo(protocol, accountId); // validate protocol & accountId
         const keyLength = getKeyLength(options); // validate options
-        const key = hkdf(sha256, seed, salt, info, keyLength);
+        const key = (0, hkdf_js_1.hkdf)(sha256_js_1.sha256, seed, salt, info, keyLength);
         // Modulus has already been validated
         return options && 'modulus' in options ? modReduceKey(key, options.modulus) : key;
     }
@@ -152,4 +158,5 @@ export async function eskdf(username, password) {
         .join(':');
     return Object.freeze({ deriveChildKey: deriveCK, expire, fingerprint });
 }
+exports.eskdf = eskdf;
 //# sourceMappingURL=eskdf.js.map

@@ -1,5 +1,8 @@
-import { SHA2 } from './_sha2.js';
-import { wrapConstructor } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ripemd160 = exports.RIPEMD160 = void 0;
+const _sha2_js_1 = require("./_sha2.js");
+const utils_js_1 = require("./utils.js");
 // https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
 // https://homes.esat.kuleuven.be/~bosselae/ripemd160/pdf/AB-9601/AB-9601.pdf
 const Rho = /* @__PURE__ */ new Uint8Array([7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8]);
@@ -42,7 +45,7 @@ function f(group, x, y, z) {
 }
 // Temporary buffer, not used to store anything between runs
 const BUF = /* @__PURE__ */ new Uint32Array(16);
-export class RIPEMD160 extends SHA2 {
+class RIPEMD160 extends _sha2_js_1.SHA2 {
     constructor() {
         super(64, 20, 8, true);
         this.h0 = 0x67452301 | 0;
@@ -96,9 +99,10 @@ export class RIPEMD160 extends SHA2 {
         this.set(0, 0, 0, 0, 0);
     }
 }
+exports.RIPEMD160 = RIPEMD160;
 /**
  * RIPEMD-160 - a hash function from 1990s.
  * @param message - msg that would be hashed
  */
-export const ripemd160 = /* @__PURE__ */ wrapConstructor(() => new RIPEMD160());
+exports.ripemd160 = (0, utils_js_1.wrapConstructor)(() => new RIPEMD160());
 //# sourceMappingURL=ripemd160.js.map

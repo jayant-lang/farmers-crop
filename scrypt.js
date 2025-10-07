@@ -1,7 +1,10 @@
-import { number as assertNumber } from './_assert.js';
-import { sha256 } from './sha256.js';
-import { pbkdf2 } from './pbkdf2.js';
-import { asyncLoop, checkOpts, u32 } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.scryptAsync = exports.scrypt = void 0;
+const _assert_js_1 = require("./_assert.js");
+const sha256_js_1 = require("./sha256.js");
+const pbkdf2_js_1 = require("./pbkdf2.js");
+const utils_js_1 = require("./utils.js");
 // RFC 7914 Scrypt KDF
 // Left rotate for uint32
 const rotl = (a, b) => (a << b) | (a >>> (32 - b));
@@ -91,18 +94,18 @@ function BlockMix(input, ii, out, oi, r) {
 // Common prologue and epilogue for sync/async functions
 function scryptInit(password, salt, _opts) {
     // Maxmem - 1GB+1KB by default
-    const opts = checkOpts({
+    const opts = (0, utils_js_1.checkOpts)({
         dkLen: 32,
         asyncTick: 10,
         maxmem: 1024 ** 3 + 1024,
     }, _opts);
     const { N, r, p, dkLen, asyncTick, maxmem, onProgress } = opts;
-    assertNumber(N);
-    assertNumber(r);
-    assertNumber(p);
-    assertNumber(dkLen);
-    assertNumber(asyncTick);
-    assertNumber(maxmem);
+    (0, _assert_js_1.number)(N);
+    (0, _assert_js_1.number)(r);
+    (0, _assert_js_1.number)(p);
+    (0, _assert_js_1.number)(dkLen);
+    (0, _assert_js_1.number)(asyncTick);
+    (0, _assert_js_1.number)(maxmem);
     if (onProgress !== undefined && typeof onProgress !== 'function')
         throw new Error('progressCb should be function');
     const blockSize = 128 * r;
@@ -124,11 +127,11 @@ function scryptInit(password, salt, _opts) {
     }
     // [B0...Bp−1] ← PBKDF2HMAC-SHA256(Passphrase, Salt, 1, blockSize*ParallelizationFactor)
     // Since it has only one iteration there is no reason to use async variant
-    const B = pbkdf2(sha256, password, salt, { c: 1, dkLen: blockSize * p });
-    const B32 = u32(B);
+    const B = (0, pbkdf2_js_1.pbkdf2)(sha256_js_1.sha256, password, salt, { c: 1, dkLen: blockSize * p });
+    const B32 = (0, utils_js_1.u32)(B);
     // Re-used between parallel iterations. Array(iterations) of B
-    const V = u32(new Uint8Array(blockSize * N));
-    const tmp = u32(new Uint8Array(blockSize));
+    const V = (0, utils_js_1.u32)(new Uint8Array(blockSize * N));
+    const tmp = (0, utils_js_1.u32)(new Uint8Array(blockSize));
     let blockMixCb = () => { };
     if (onProgress) {
         const totalBlockMix = 2 * N * p;
@@ -145,7 +148,7 @@ function scryptInit(password, salt, _opts) {
     return { N, r, p, dkLen, blockSize32, V, B32, B, tmp, blockMixCb, asyncTick };
 }
 function scryptOutput(password, dkLen, B, V, tmp) {
-    const res = pbkdf2(sha256, password, B, { c: 1, dkLen });
+    const res = (0, pbkdf2_js_1.pbkdf2)(sha256_js_1.sha256, password, B, { c: 1, dkLen });
     B.fill(0);
     V.fill(0);
     tmp.fill(0);
@@ -165,7 +168,7 @@ function scryptOutput(password, dkLen, B, V, tmp) {
  * - `onProgress` - callback function that would be executed for progress report
  * @returns Derived key
  */
-export function scrypt(password, salt, opts) {
+function scrypt(password, salt, opts) {
     const { N, r, p, dkLen, blockSize32, V, B32, B, tmp, blockMixCb } = scryptInit(password, salt, opts);
     for (let pi = 0; pi < p; pi++) {
         const Pi = blockSize32 * pi;
@@ -188,23 +191,24 @@ export function scrypt(password, salt, opts) {
     }
     return scryptOutput(password, dkLen, B, V, tmp);
 }
+exports.scrypt = scrypt;
 /**
  * Scrypt KDF from RFC 7914.
  */
-export async function scryptAsync(password, salt, opts) {
+async function scryptAsync(password, salt, opts) {
     const { N, r, p, dkLen, blockSize32, V, B32, B, tmp, blockMixCb, asyncTick } = scryptInit(password, salt, opts);
     for (let pi = 0; pi < p; pi++) {
         const Pi = blockSize32 * pi;
         for (let i = 0; i < blockSize32; i++)
             V[i] = B32[Pi + i]; // V[0] = B[i]
         let pos = 0;
-        await asyncLoop(N - 1, asyncTick, () => {
+        await (0, utils_js_1.asyncLoop)(N - 1, asyncTick, () => {
             BlockMix(V, pos, V, (pos += blockSize32), r); // V[i] = BlockMix(V[i-1]);
             blockMixCb();
         });
         BlockMix(V, (N - 1) * blockSize32, B32, Pi, r); // Process last element
         blockMixCb();
-        await asyncLoop(N, asyncTick, () => {
+        await (0, utils_js_1.asyncLoop)(N, asyncTick, () => {
             // First u32 of the last 64-byte block (u32 is LE)
             const j = B32[Pi + blockSize32 - 16] % N; // j = Integrify(X) % iterations
             for (let k = 0; k < blockSize32; k++)
@@ -215,4 +219,5 @@ export async function scryptAsync(password, salt, opts) {
     }
     return scryptOutput(password, dkLen, B, V, tmp);
 }
+exports.scryptAsync = scryptAsync;
 //# sourceMappingURL=scrypt.js.map

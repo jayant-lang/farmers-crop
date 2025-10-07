@@ -1,6 +1,9 @@
-import { BLAKE2, SIGMA } from './_blake2.js';
-import u64 from './_u64.js';
-import { toBytes, u32, wrapConstructorWithOpts } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blake2b = void 0;
+const _blake2_js_1 = require("./_blake2.js");
+const _u64_js_1 = require("./_u64.js");
+const utils_js_1 = require("./utils.js");
 // Same as SHA-512 but LE
 // prettier-ignore
 const IV = /* @__PURE__ */ new Uint32Array([
@@ -18,17 +21,17 @@ function G1(a, b, c, d, msg, x) {
     let Cl = BUF[2 * c], Ch = BUF[2 * c + 1]; // prettier-ignore
     let Dl = BUF[2 * d], Dh = BUF[2 * d + 1]; // prettier-ignore
     // v[a] = (v[a] + v[b] + x) | 0;
-    let ll = u64.add3L(Al, Bl, Xl);
-    Ah = u64.add3H(ll, Ah, Bh, Xh);
+    let ll = _u64_js_1.default.add3L(Al, Bl, Xl);
+    Ah = _u64_js_1.default.add3H(ll, Ah, Bh, Xh);
     Al = ll | 0;
     // v[d] = rotr(v[d] ^ v[a], 32)
     ({ Dh, Dl } = { Dh: Dh ^ Ah, Dl: Dl ^ Al });
-    ({ Dh, Dl } = { Dh: u64.rotr32H(Dh, Dl), Dl: u64.rotr32L(Dh, Dl) });
+    ({ Dh, Dl } = { Dh: _u64_js_1.default.rotr32H(Dh, Dl), Dl: _u64_js_1.default.rotr32L(Dh, Dl) });
     // v[c] = (v[c] + v[d]) | 0;
-    ({ h: Ch, l: Cl } = u64.add(Ch, Cl, Dh, Dl));
+    ({ h: Ch, l: Cl } = _u64_js_1.default.add(Ch, Cl, Dh, Dl));
     // v[b] = rotr(v[b] ^ v[c], 24)
     ({ Bh, Bl } = { Bh: Bh ^ Ch, Bl: Bl ^ Cl });
-    ({ Bh, Bl } = { Bh: u64.rotrSH(Bh, Bl, 24), Bl: u64.rotrSL(Bh, Bl, 24) });
+    ({ Bh, Bl } = { Bh: _u64_js_1.default.rotrSH(Bh, Bl, 24), Bl: _u64_js_1.default.rotrSL(Bh, Bl, 24) });
     (BUF[2 * a] = Al), (BUF[2 * a + 1] = Ah);
     (BUF[2 * b] = Bl), (BUF[2 * b + 1] = Bh);
     (BUF[2 * c] = Cl), (BUF[2 * c + 1] = Ch);
@@ -42,23 +45,23 @@ function G2(a, b, c, d, msg, x) {
     let Cl = BUF[2 * c], Ch = BUF[2 * c + 1]; // prettier-ignore
     let Dl = BUF[2 * d], Dh = BUF[2 * d + 1]; // prettier-ignore
     // v[a] = (v[a] + v[b] + x) | 0;
-    let ll = u64.add3L(Al, Bl, Xl);
-    Ah = u64.add3H(ll, Ah, Bh, Xh);
+    let ll = _u64_js_1.default.add3L(Al, Bl, Xl);
+    Ah = _u64_js_1.default.add3H(ll, Ah, Bh, Xh);
     Al = ll | 0;
     // v[d] = rotr(v[d] ^ v[a], 16)
     ({ Dh, Dl } = { Dh: Dh ^ Ah, Dl: Dl ^ Al });
-    ({ Dh, Dl } = { Dh: u64.rotrSH(Dh, Dl, 16), Dl: u64.rotrSL(Dh, Dl, 16) });
+    ({ Dh, Dl } = { Dh: _u64_js_1.default.rotrSH(Dh, Dl, 16), Dl: _u64_js_1.default.rotrSL(Dh, Dl, 16) });
     // v[c] = (v[c] + v[d]) | 0;
-    ({ h: Ch, l: Cl } = u64.add(Ch, Cl, Dh, Dl));
+    ({ h: Ch, l: Cl } = _u64_js_1.default.add(Ch, Cl, Dh, Dl));
     // v[b] = rotr(v[b] ^ v[c], 63)
     ({ Bh, Bl } = { Bh: Bh ^ Ch, Bl: Bl ^ Cl });
-    ({ Bh, Bl } = { Bh: u64.rotrBH(Bh, Bl, 63), Bl: u64.rotrBL(Bh, Bl, 63) });
+    ({ Bh, Bl } = { Bh: _u64_js_1.default.rotrBH(Bh, Bl, 63), Bl: _u64_js_1.default.rotrBL(Bh, Bl, 63) });
     (BUF[2 * a] = Al), (BUF[2 * a + 1] = Ah);
     (BUF[2 * b] = Bl), (BUF[2 * b + 1] = Bh);
     (BUF[2 * c] = Cl), (BUF[2 * c + 1] = Ch);
     (BUF[2 * d] = Dl), (BUF[2 * d + 1] = Dh);
 }
-class BLAKE2b extends BLAKE2 {
+class BLAKE2b extends _blake2_js_1.BLAKE2 {
     constructor(opts = {}) {
         super(128, opts.dkLen === undefined ? 64 : opts.dkLen, opts, 64, 16, 16);
         // Same as SHA-512, but LE
@@ -81,14 +84,14 @@ class BLAKE2b extends BLAKE2 {
         const keyLength = opts.key ? opts.key.length : 0;
         this.v0l ^= this.outputLen | (keyLength << 8) | (0x01 << 16) | (0x01 << 24);
         if (opts.salt) {
-            const salt = u32(toBytes(opts.salt));
+            const salt = (0, utils_js_1.u32)((0, utils_js_1.toBytes)(opts.salt));
             this.v4l ^= salt[0];
             this.v4h ^= salt[1];
             this.v5l ^= salt[2];
             this.v5h ^= salt[3];
         }
         if (opts.personalization) {
-            const pers = u32(toBytes(opts.personalization));
+            const pers = (0, utils_js_1.u32)((0, utils_js_1.toBytes)(opts.personalization));
             this.v6l ^= pers[0];
             this.v6h ^= pers[1];
             this.v7l ^= pers[2];
@@ -97,7 +100,7 @@ class BLAKE2b extends BLAKE2 {
         if (opts.key) {
             // Pad to blockLen and update
             const tmp = new Uint8Array(this.blockLen);
-            tmp.set(toBytes(opts.key));
+            tmp.set((0, utils_js_1.toBytes)(opts.key));
             this.update(tmp);
         }
     }
@@ -128,7 +131,7 @@ class BLAKE2b extends BLAKE2 {
     compress(msg, offset, isLast) {
         this.get().forEach((v, i) => (BUF[i] = v)); // First half from state.
         BUF.set(IV, 16); // Second half from IV.
-        let { h, l } = u64.fromBig(BigInt(this.length));
+        let { h, l } = _u64_js_1.default.fromBig(BigInt(this.length));
         BUF[24] = IV[8] ^ l; // Low word of the offset.
         BUF[25] = IV[9] ^ h; // High word.
         // Invert all bits for last block
@@ -137,7 +140,7 @@ class BLAKE2b extends BLAKE2 {
             BUF[29] = ~BUF[29];
         }
         let j = 0;
-        const s = SIGMA;
+        const s = _blake2_js_1.SIGMA;
         for (let i = 0; i < 12; i++) {
             G1(0, 4, 8, 12, msg, offset + 2 * s[j++]);
             G2(0, 4, 8, 12, msg, offset + 2 * s[j++]);
@@ -185,5 +188,5 @@ class BLAKE2b extends BLAKE2 {
  * @param msg - message that would be hashed
  * @param opts - dkLen, key, salt, personalization
  */
-export const blake2b = /* @__PURE__ */ wrapConstructorWithOpts((opts) => new BLAKE2b(opts));
+exports.blake2b = (0, utils_js_1.wrapConstructorWithOpts)((opts) => new BLAKE2b(opts));
 //# sourceMappingURL=blake2b.js.map

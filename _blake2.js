@@ -1,9 +1,12 @@
-import { number, exists, output } from './_assert.js';
-import { Hash, toBytes, u32 } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BLAKE2 = exports.SIGMA = void 0;
+const _assert_js_1 = require("./_assert.js");
+const utils_js_1 = require("./utils.js");
 // Blake is based on ChaCha permutation.
 // For BLAKE2b, the two extra permutations for rounds 10 and 11 are SIGMA[10..11] = SIGMA[0..1].
 // prettier-ignore
-export const SIGMA = /* @__PURE__ */ new Uint8Array([
+exports.SIGMA = new Uint8Array([
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
     14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
     11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4,
@@ -17,7 +20,7 @@ export const SIGMA = /* @__PURE__ */ new Uint8Array([
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
     14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
 ]);
-export class BLAKE2 extends Hash {
+class BLAKE2 extends utils_js_1.Hash {
     constructor(blockLen, outputLen, opts = {}, keyLen, saltLen, persLen) {
         super();
         this.blockLen = blockLen;
@@ -26,9 +29,9 @@ export class BLAKE2 extends Hash {
         this.pos = 0;
         this.finished = false;
         this.destroyed = false;
-        number(blockLen);
-        number(outputLen);
-        number(keyLen);
+        (0, _assert_js_1.number)(blockLen);
+        (0, _assert_js_1.number)(outputLen);
+        (0, _assert_js_1.number)(keyLen);
         if (outputLen < 0 || outputLen > keyLen)
             throw new Error('outputLen bigger than keyLen');
         if (opts.key !== undefined && (opts.key.length < 1 || opts.key.length > keyLen))
@@ -37,16 +40,16 @@ export class BLAKE2 extends Hash {
             throw new Error(`salt must be ${saltLen} byte long or undefined`);
         if (opts.personalization !== undefined && opts.personalization.length !== persLen)
             throw new Error(`personalization must be ${persLen} byte long or undefined`);
-        this.buffer32 = u32((this.buffer = new Uint8Array(blockLen)));
+        this.buffer32 = (0, utils_js_1.u32)((this.buffer = new Uint8Array(blockLen)));
     }
     update(data) {
-        exists(this);
+        (0, _assert_js_1.exists)(this);
         // Main difference with other hashes: there is flag for last block,
         // so we cannot process current block before we know that there
         // is the next one. This significantly complicates logic and reduces ability
         // to do zero-copy processing
         const { blockLen, buffer, buffer32 } = this;
-        data = toBytes(data);
+        data = (0, utils_js_1.toBytes)(data);
         const len = data.length;
         const offset = data.byteOffset;
         const buf = data.buffer;
@@ -75,14 +78,14 @@ export class BLAKE2 extends Hash {
         return this;
     }
     digestInto(out) {
-        exists(this);
-        output(out, this);
+        (0, _assert_js_1.exists)(this);
+        (0, _assert_js_1.output)(out, this);
         const { pos, buffer32 } = this;
         this.finished = true;
         // Padding
         this.buffer.subarray(pos).fill(0);
         this.compress(buffer32, 0, true);
-        const out32 = u32(out);
+        const out32 = (0, utils_js_1.u32)(out);
         this.get().forEach((v, i) => (out32[i] = v));
     }
     digest() {
@@ -105,4 +108,5 @@ export class BLAKE2 extends Hash {
         return to;
     }
 }
+exports.BLAKE2 = BLAKE2;
 //# sourceMappingURL=_blake2.js.map

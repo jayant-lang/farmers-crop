@@ -1,5 +1,8 @@
-import { exists, output } from './_assert.js';
-import { Hash, createView, toBytes } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SHA2 = void 0;
+const _assert_js_1 = require("./_assert.js");
+const utils_js_1 = require("./utils.js");
 // Polyfill for Safari 14
 function setBigUint64(view, byteOffset, value, isLE) {
     if (typeof view.setBigUint64 === 'function')
@@ -14,7 +17,7 @@ function setBigUint64(view, byteOffset, value, isLE) {
     view.setUint32(byteOffset + l, wl, isLE);
 }
 // Base SHA2 class (RFC 6234)
-export class SHA2 extends Hash {
+class SHA2 extends utils_js_1.Hash {
     constructor(blockLen, outputLen, padOffset, isLE) {
         super();
         this.blockLen = blockLen;
@@ -26,18 +29,18 @@ export class SHA2 extends Hash {
         this.pos = 0;
         this.destroyed = false;
         this.buffer = new Uint8Array(blockLen);
-        this.view = createView(this.buffer);
+        this.view = (0, utils_js_1.createView)(this.buffer);
     }
     update(data) {
-        exists(this);
+        (0, _assert_js_1.exists)(this);
         const { view, buffer, blockLen } = this;
-        data = toBytes(data);
+        data = (0, utils_js_1.toBytes)(data);
         const len = data.length;
         for (let pos = 0; pos < len;) {
             const take = Math.min(blockLen - this.pos, len - pos);
             // Fast path: we have at least one block in input, cast it to view and process
             if (take === blockLen) {
-                const dataView = createView(data);
+                const dataView = (0, utils_js_1.createView)(data);
                 for (; blockLen <= len - pos; pos += blockLen)
                     this.process(dataView, pos);
                 continue;
@@ -55,8 +58,8 @@ export class SHA2 extends Hash {
         return this;
     }
     digestInto(out) {
-        exists(this);
-        output(out, this);
+        (0, _assert_js_1.exists)(this);
+        (0, _assert_js_1.output)(out, this);
         this.finished = true;
         // Padding
         // We can avoid allocation of buffer for padding completely if it
@@ -79,7 +82,7 @@ export class SHA2 extends Hash {
         // So we just write lowest 64 bits of that value.
         setBigUint64(view, blockLen - 8, BigInt(this.length * 8), isLE);
         this.process(view, 0);
-        const oview = createView(out);
+        const oview = (0, utils_js_1.createView)(out);
         const len = this.outputLen;
         // NOTE: we do division by 4 later, which should be fused in single op with modulo by JIT
         if (len % 4)
@@ -111,4 +114,5 @@ export class SHA2 extends Hash {
         return to;
     }
 }
+exports.SHA2 = SHA2;
 //# sourceMappingURL=_sha2.js.map

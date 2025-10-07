@@ -1,5 +1,8 @@
-import { SHA2 } from './_sha2.js';
-import { wrapConstructor } from './utils.js';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sha1 = void 0;
+const _sha2_js_1 = require("./_sha2.js");
+const utils_js_1 = require("./utils.js");
 // SHA1 was cryptographically broken.
 // It is still widely used in legacy apps. Don't use it for a new protocol.
 // RFC 3174
@@ -15,7 +18,7 @@ const IV = /* @__PURE__ */ new Uint32Array([
 // Temporary buffer, not used to store anything between runs
 // Named this way because it matches specification.
 const SHA1_W = /* @__PURE__ */ new Uint32Array(80);
-class SHA1 extends SHA2 {
+class SHA1 extends _sha2_js_1.SHA2 {
     constructor() {
         super(64, 20, 8, false);
         this.A = IV[0] | 0;
@@ -83,5 +86,5 @@ class SHA1 extends SHA2 {
         this.buffer.fill(0);
     }
 }
-export const sha1 = /* @__PURE__ */ wrapConstructor(() => new SHA1());
+exports.sha1 = (0, utils_js_1.wrapConstructor)(() => new SHA1());
 //# sourceMappingURL=sha1.js.map
