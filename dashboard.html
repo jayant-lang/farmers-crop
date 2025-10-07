@@ -1,0 +1,3085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ayur Tech - Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    color: #333;
+  }
+
+  /* Paytm-style Header */
+  .header {
+    background: linear-gradient(135deg, #00baf2 0%, #00a8cc 100%);
+    color: white;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo img {
+    width: 30px;
+    height: 20px;
+  }
+
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .logout-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .logout-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Search Bar */
+  .search-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .search-bar {
+    width: 100%;
+    padding: 12px 45px 12px 15px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .search-bar:focus {
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 18px;
+  }
+
+  /* Main Content */
+  .main-content {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Quick Actions - Paytm Style */
+  .quick-actions {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .action-item:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+  }
+
+  .action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .camera-icon {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+  }
+
+  .search-icon-action {
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    color: white;
+  }
+
+  .weather-icon {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+  }
+
+  .analytics-icon {
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+    color: white;
+  }
+
+  .action-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  /* Crop Search Section */
+  .crop-search {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-tabs {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .tab.active {
+    color: #00baf2;
+    border-bottom-color: #00baf2;
+  }
+
+  .search-input-container {
+    position: relative;
+    margin-bottom: 15px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 45px 12px 15px;
+    border: 2px solid #eee;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .search-input:focus {
+    border-color: #00baf2;
+    box-shadow: 0 0 0 3px rgba(0, 186, 242, 0.1);
+  }
+
+  .search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #00baf2;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .crop-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .crop-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .crop-card:hover {
+    background: #e9ecef;
+    border-color: #00baf2;
+    transform: translateY(-2px);
+  }
+
+  .crop-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+  }
+
+  .crop-name-hindi {
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Camera Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+  }
+
+  .close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+  }
+
+  .camera-container {
+    text-align: center;
+  }
+
+  #cameraVideo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
+
+  .camera-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary {
+    background: #00baf2;
+    color: white;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Network Status Indicator */
+  .network-status {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 10000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .network-status.error {
+    background: rgba(220, 53, 69, 0.9);
+  }
+
+  .network-status.warning {
+    background: rgba(255, 193, 7, 0.9);
+    color: #000;
+  }
+
+  .network-status.success {
+    background: rgba(40, 167, 69, 0.9);
+  }
+
+  /* No Network Indicator */
+  .no-network-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+  }
+
+  .no-network-content {
+    text-align: center;
+    color: white;
+  }
+
+  .no-network-logo {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: blink-twice 2s ease-in-out;
+  }
+
+  .no-network-text {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .no-network-subtext {
+    font-size: 16px;
+    opacity: 0.8;
+  }
+
+  @keyframes blink-twice {
+    0%, 100% { opacity: 1; }
+    25% { opacity: 0; }
+    50% { opacity: 1; }
+    75% { opacity: 0; }
+  }
+
+  .no-network-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #dc3545;
+    color: white;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 10002;
+    display: none;
+  }
+
+  /* Scrollable Analysis Styles */
+  .analysis-scrollable {
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f8f9fa;
+  }
+
+  .analysis-scrollable::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .analysis-scrollable::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
+  }
+
+  .analysis-scrollable::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+  }
+
+  .analysis-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+  }
+
+  .scroll-controls button {
+    margin: 0 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .scroll-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Full-page Modal Styles */
+  .full-page-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .full-page-modal .modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+
+  .full-page-modal .modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f8f9fa;
+  }
+
+  .full-page-modal .modal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .full-page-modal .modal-body::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
+  }
+
+  .full-page-modal .modal-body::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+  }
+
+  .full-page-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+  }
+
+  /* Stats Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00baf2;
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  /* Reviews Section */
+  .reviews-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .review-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-stars {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  .review-text {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    font-style: italic;
+  }
+
+  .review-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .author-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00baf2 0%, #00a8cc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .author-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+
+  .author-location {
+    color: #666;
+    font-size: 0.8rem;
+  }
+
+  /* Enhanced Weather Modal */
+  .weather-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .weather-content {
+    background: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 800px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .weather-current {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .weather-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .weather-stat {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  .weather-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #00baf2;
+  }
+
+  .weather-stat-label {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .crop-recommendations {
+    margin-top: 20px;
+  }
+
+  .recommendation-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #00baf2;
+  }
+
+  .recommendation-suitability {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .suitability-excellent {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .suitability-good {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+
+  .suitability-fair {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .suitability-poor {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  /* Analytics Modal */
+  .analytics-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .analytics-content {
+    background: white;
+    margin: 2% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 95%;
+    max-width: 1200px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .analytics-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .chart-container {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .chart-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .chart-placeholder {
+    height: 200px;
+    background: linear-gradient(45deg, #e9ecef 25%, transparent 25%), 
+                linear-gradient(-45deg, #e9ecef 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #e9ecef 75%), 
+                linear-gradient(-45deg, transparent 75%, #e9ecef 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-style: italic;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .actions-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .crop-results {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .reviews-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .main-content {
+      padding: 15px;
+    }
+
+    .header-top {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .weather-content,
+    .analytics-content {
+      margin: 5% auto;
+      padding: 20px;
+      width: 95%;
+    }
+
+    .analytics-charts {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+  <!-- Paytm-style Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">
+        <img src="assets/logo.svg" alt="Ayur Tech Logo">
+        Ayur Tech
+      </div>
+      <div class="user-profile">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div>
+          <div id="userEmail" style="font-size: 14px; font-weight: 500;">user@example.com</div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" class="search-bar" placeholder="Search crops, weather, or anything..." id="mainSearch">
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h3 class="section-title">Quick Actions</h3>
+      <div class="actions-grid">
+        <div class="action-item" onclick="openCamera()">
+          <div class="action-icon camera-icon">📷</div>
+          <div class="action-label">Crop Scanner</div>
+        </div>
+        <div class="action-item" onclick="focusSearch()">
+          <div class="action-icon search-icon-action">🔍</div>
+          <div class="action-label">Search Crops</div>
+        </div>
+        <div class="action-item" onclick="showWeather()">
+          <div class="action-icon weather-icon">🌤️</div>
+          <div class="action-label">Weather</div>
+        </div>
+        <div class="action-item" onclick="showAnalytics()">
+          <div class="action-icon analytics-icon">📊</div>
+          <div class="action-label">Analytics</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crop Search Section -->
+    <div class="crop-search">
+      <h3 class="section-title">Crop Search</h3>
+      <div class="search-tabs">
+        <div class="tab active" onclick="switchTab('english')">English</div>
+        <div class="tab" onclick="switchTab('hindi')">हिंदी</div>
+      </div>
+      
+      <div class="search-input-container">
+        <input type="text" class="search-input" id="cropSearchInput" placeholder="Search for crops..." onkeyup="searchCrops()">
+        <button class="search-btn" onclick="searchCrops()">Search</button>
+      </div>
+      
+      <div class="crop-results" id="cropResults">
+        <!-- Crop results will be populated here -->
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">12</div>
+        <div class="stat-label">Active Crops</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Devices</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Alerts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">85%</div>
+        <div class="stat-label">Efficiency</div>
+      </div>
+    </div>
+
+    <!-- Customer Reviews Section -->
+    <div class="reviews-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 class="section-title">What Farmers Say About Ayur Tech</h3>
+        <button class="btn btn-primary" onclick="showAddReviewModal()" style="padding: 8px 16px; font-size: 0.9rem;">Add Review</button>
+      </div>
+      <div class="reviews-grid" id="reviewsGrid">
+        <!-- Reviews will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Camera Modal -->
+  <div id="cameraModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCamera()">&times;</span>
+      <div class="camera-container">
+        <h3>Crop Scanner</h3>
+        <video id="cameraVideo" autoplay></video>
+        <div class="camera-controls">
+          <button class="btn btn-primary" onclick="capturePhoto()">Capture</button>
+          <button class="btn btn-secondary" onclick="closeCamera()">Close</button>
+        </div>
+        <canvas id="cameraCanvas" style="display: none;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather Modal -->
+  <div id="weatherModal" class="weather-modal">
+    <div class="weather-content">
+      <div class="weather-header">
+        <h3>Weather & Crop Recommendations</h3>
+        <span class="close" onclick="closeWeather()">&times;</span>
+      </div>
+      
+      <div class="weather-current">
+        <h4>Weather & Location Settings</h4>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Select State:</label>
+            <select id="stateSelect" onchange="updateLocation()" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+              <option value="">Select State</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Andhra Pradesh">Andhra Pradesh</option>
+              <option value="Telangana">Telangana</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Odisha">Odisha</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
+              <option value="Himachal Pradesh">Himachal Pradesh</option>
+              <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="Assam">Assam</option>
+              <option value="Kerala">Kerala</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Season:</label>
+            <select id="seasonSelect" onchange="updateSeasonRecommendations()" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+              <option value="">Select Season</option>
+              <option value="kharif">Kharif (June-October)</option>
+              <option value="rabi">Rabi (October-March)</option>
+              <option value="year-round">Year-round</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Temperature (°C):</label>
+            <input type="number" id="tempInput" value="28" min="0" max="50" onchange="updateWeather()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Humidity (%):</label>
+            <input type="number" id="humidityInput" value="65" min="0" max="100" onchange="updateWeather()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Rainfall (mm):</label>
+            <input type="number" id="rainfallInput" value="15" min="0" max="2000" onchange="updateWeather()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+          </div>
+        </div>
+
+        <div class="weather-stats">
+          <div class="weather-stat">
+            <div class="weather-stat-value" id="currentTemp">28°C</div>
+            <div class="weather-stat-label">Temperature</div>
+          </div>
+          <div class="weather-stat">
+            <div class="weather-stat-value" id="currentHumidity">65%</div>
+            <div class="weather-stat-label">Humidity</div>
+          </div>
+          <div class="weather-stat">
+            <div class="weather-stat-value" id="currentRainfall">15mm</div>
+            <div class="weather-stat-label">Rainfall</div>
+          </div>
+          <div class="weather-stat">
+            <div class="weather-stat-value" id="currentLocation">Default Location</div>
+            <div class="weather-stat-label">Location</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="crop-recommendations">
+        <h4>Crop Suitability Analysis</h4>
+        <div id="cropRecommendations">
+          <!-- Recommendations will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Modal -->
+  <div id="analyticsModal" class="analytics-modal">
+    <div class="analytics-content">
+      <div class="weather-header">
+        <h3>Crop Analytics Dashboard</h3>
+        <span class="close" onclick="closeAnalytics()">&times;</span>
+      </div>
+      
+      <div class="analytics-charts">
+        <div class="chart-container">
+          <div class="chart-title">Crop Search History</div>
+          <canvas id="cropSearchChart" width="300" height="200"></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <div class="chart-title">Disease Detection Trends</div>
+          <canvas id="diseaseChart" width="300" height="200"></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <div class="chart-title">Weather Impact Analysis</div>
+          <canvas id="weatherChart" width="300" height="200"></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <div class="chart-title">Crop Performance Metrics</div>
+          <canvas id="performanceChart" width="300" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Review Modal -->
+  <div id="addReviewModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+      <span class="close" onclick="closeAddReviewModal()">&times;</span>
+      <div class="camera-container">
+        <h3>🌟 Share Your Experience</h3>
+        <form id="reviewForm">
+          <div class="form-group">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Your Name:</label>
+            <input type="text" id="reviewerName" class="form-input" placeholder="Enter your name" required />
+          </div>
+          
+          <div class="form-group">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Location:</label>
+            <input type="text" id="reviewerLocation" class="form-input" placeholder="Enter your location (e.g., Punjab, India)" required />
+          </div>
+          
+          <div class="form-group">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Crop:</label>
+            <select id="reviewCrop" class="form-input" required>
+              <option value="">Select a crop</option>
+              <option value="Rice">Rice</option>
+              <option value="Wheat">Wheat</option>
+              <option value="Maize">Maize</option>
+              <option value="Tomato">Tomato</option>
+              <option value="Potato">Potato</option>
+              <option value="Cotton">Cotton</option>
+              <option value="Sugarcane">Sugarcane</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Rating:</label>
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+              <span class="star-rating" data-rating="1">⭐</span>
+              <span class="star-rating" data-rating="2">⭐</span>
+              <span class="star-rating" data-rating="3">⭐</span>
+              <span class="star-rating" data-rating="4">⭐</span>
+              <span class="star-rating" data-rating="5">⭐</span>
+            </div>
+            <input type="hidden" id="reviewRating" value="5" required />
+          </div>
+          
+          <div class="form-group">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Your Review:</label>
+            <textarea id="reviewText" class="form-input" placeholder="Share your experience with Ayur Tech..." rows="4" required></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit" id="submitReviewBtn">
+            <span id="submitBtnText">Submit Review</span>
+            <div class="loading" id="submitLoadingSpinner" style="display: none;"></div>
+          </button>
+
+          <div id="reviewMessage"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js for visual analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Web3.js for blockchain integration -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  
+  <!-- Blockchain Services -->
+  <script src="js/web3Service.js"></script>
+  <script src="js/blockchainIntegration.js"></script>
+  
+  <!-- Network Status Indicators -->
+  <div class="network-status" id="networkStatus"></div>
+  <div class="no-network-banner" id="noNetworkBanner">📡 No Network Connection</div>
+  <div class="no-network-overlay" id="noNetworkOverlay">
+    <div class="no-network-content">
+      <div class="no-network-logo">📡</div>
+      <div class="no-network-text">No Network Connection</div>
+      <div class="no-network-subtext">Please check your internet connection</div>
+    </div>
+  </div>
+
+  <script>
+    // Crop database with English and Hindi names
+    const cropDatabase = {
+      english: [
+        { name: 'Rice', hindi: 'चावल', category: 'Cereal' },
+        { name: 'Wheat', hindi: 'गेहूं', category: 'Cereal' },
+        { name: 'Maize', hindi: 'मक्का', category: 'Cereal' },
+        { name: 'Sugarcane', hindi: 'गन्ना', category: 'Cash Crop' },
+        { name: 'Cotton', hindi: 'कपास', category: 'Fiber Crop' },
+        { name: 'Potato', hindi: 'आलू', category: 'Vegetable' },
+        { name: 'Tomato', hindi: 'टमाटर', category: 'Vegetable' },
+        { name: 'Onion', hindi: 'प्याज', category: 'Vegetable' },
+        { name: 'Mango', hindi: 'आम', category: 'Fruit' },
+        { name: 'Banana', hindi: 'केला', category: 'Fruit' },
+        { name: 'Apple', hindi: 'सेब', category: 'Fruit' },
+        { name: 'Grapes', hindi: 'अंगूर', category: 'Fruit' },
+        { name: 'Cabbage', hindi: 'पत्ता गोभी', category: 'Vegetable' },
+        { name: 'Cauliflower', hindi: 'फूल गोभी', category: 'Vegetable' },
+        { name: 'Carrot', hindi: 'गाजर', category: 'Vegetable' },
+        { name: 'Spinach', hindi: 'पालक', category: 'Leafy Vegetable' },
+        { name: 'Brinjal', hindi: 'बैंगन', category: 'Vegetable' },
+        { name: 'Okra', hindi: 'भिंडी', category: 'Vegetable' },
+        { name: 'Cucumber', hindi: 'खीरा', category: 'Vegetable' },
+        { name: 'Pumpkin', hindi: 'कद्दू', category: 'Vegetable' }
+      ],
+      hindi: [
+        { name: 'चावल', english: 'Rice', category: 'अनाज' },
+        { name: 'गेहूं', english: 'Wheat', category: 'अनाज' },
+        { name: 'मक्का', english: 'Maize', category: 'अनाज' },
+        { name: 'गन्ना', english: 'Sugarcane', category: 'नकदी फसल' },
+        { name: 'कपास', english: 'Cotton', category: 'रेशा फसल' },
+        { name: 'आलू', english: 'Potato', category: 'सब्जी' },
+        { name: 'टमाटर', english: 'Tomato', category: 'सब्जी' },
+        { name: 'प्याज', english: 'Onion', category: 'सब्जी' },
+        { name: 'आम', english: 'Mango', category: 'फल' },
+        { name: 'केला', english: 'Banana', category: 'फल' },
+        { name: 'सेब', english: 'Apple', category: 'फल' },
+        { name: 'अंगूर', english: 'Grapes', category: 'फल' },
+        { name: 'पत्ता गोभी', english: 'Cabbage', category: 'सब्जी' },
+        { name: 'फूल गोभी', english: 'Cauliflower', category: 'सब्जी' },
+        { name: 'गाजर', english: 'Carrot', category: 'सब्जी' },
+        { name: 'पालक', english: 'Spinach', category: 'पत्तेदार सब्जी' },
+        { name: 'बैंगन', english: 'Brinjal', category: 'सब्जी' },
+        { name: 'भिंडी', english: 'Okra', category: 'सब्जी' },
+        { name: 'खीरा', english: 'Cucumber', category: 'सब्जी' },
+        { name: 'कद्दू', english: 'Pumpkin', category: 'सब्जी' }
+      ]
+    };
+
+    let currentTab = 'english';
+    let stream = null;
+
+    // Check if user is logged in
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      
+      if (!token || !user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Display user info
+      try {
+        const userData = JSON.parse(user);
+        document.getElementById('userEmail').textContent = userData.email || 'user@example.com';
+        document.getElementById('userAvatar').textContent = (userData.email || 'U').charAt(0).toUpperCase();
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    // Switch between English and Hindi tabs
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      const searchInput = document.getElementById('cropSearchInput');
+      if (tab === 'english') {
+        searchInput.placeholder = 'Search for crops...';
+      } else {
+        searchInput.placeholder = 'फसलों की खोज करें...';
+      }
+      
+      // Clear previous results
+      document.getElementById('cropResults').innerHTML = '';
+    }
+
+    // Search crops function
+    async function searchCrops() {
+      const query = document.getElementById('cropSearchInput').value.toLowerCase().trim();
+      const resultsContainer = document.getElementById('cropResults');
+      
+      if (query.length < 2) {
+        resultsContainer.innerHTML = '';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/crops/search/${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          displayCropResults(data.data);
+        } else {
+          resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No crops found</div>';
+        }
+      } catch (error) {
+        console.error('Error searching crops:', error);
+        // Fallback to local search
+        const crops = cropDatabase[currentTab];
+        const filteredCrops = crops.filter(crop => 
+          crop.name.toLowerCase().includes(query)
+        );
+        displayCropResults(filteredCrops);
+      }
+    }
+
+    // Display crop search results
+    function displayCropResults(crops) {
+      const resultsContainer = document.getElementById('cropResults');
+      
+      if (crops.length === 0) {
+        resultsContainer.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No crops found</div>';
+        return;
+      }
+
+      resultsContainer.innerHTML = crops.map(crop => `
+        <div class="crop-card" onclick="selectCrop('${crop.name}')">
+          <div class="crop-name">${crop.name}</div>
+          <div class="crop-name-hindi">${crop.hindi}</div>
+          <div style="font-size: 12px; color: #999; margin-top: 5px;">${crop.category}</div>
+          <div style="font-size: 10px; color: #666; margin-top: 3px;">${crop.scientificName}</div>
+        </div>
+      `).join('');
+    }
+
+    // Select a crop
+    async function selectCrop(cropName) {
+      try {
+        const response = await fetch(`/api/crops/${cropName.toLowerCase()}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          showCropDetails(data.data);
+        } else {
+          alert(`Selected crop: ${cropName}`);
+        }
+      } catch (error) {
+        console.error('Error fetching crop details:', error);
+        alert(`Selected crop: ${cropName}`);
+      }
+    }
+
+    // Show detailed crop information
+    function showCropDetails(crop) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 700px;">
+          <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+          <div class="camera-container">
+            <h3>${crop.name} (${crop.hindi})</h3>
+            <p><strong>Scientific Name:</strong> ${crop.scientificName}</p>
+            <p><strong>Category:</strong> ${crop.category}</p>
+            <p><strong>States:</strong> ${crop.states ? crop.states.join(', ') : 'N/A'}</p>
+            
+            <h4>Weather Requirements:</h4>
+            <ul>
+              <li><strong>Temperature:</strong> ${crop.weather.temperature}</li>
+              <li><strong>Humidity:</strong> ${crop.weather.humidity}</li>
+              <li><strong>Rainfall:</strong> ${crop.weather.rainfall}</li>
+              <li><strong>Season:</strong> ${crop.weather.season}</li>
+              <li><strong>Soil:</strong> ${crop.weather.soil}</li>
+            </ul>
+            
+            <h4>Common Diseases:</h4>
+            <div style="max-height: 200px; overflow-y: auto;">
+              ${crop.diseases.map(disease => `
+                <div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                  <strong>${disease.name} (${disease.hindi})</strong>
+                  <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Symptoms:</strong> ${disease.symptoms}</p>
+                  <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Treatment:</strong> ${disease.treatment}</p>
+                  <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Prevention:</strong> ${disease.prevention}</p>
+                  <span style="background: ${disease.severity === 'High' ? '#f8d7da' : disease.severity === 'Medium' ? '#fff3cd' : '#d4edda'}; 
+                                color: ${disease.severity === 'High' ? '#721c24' : disease.severity === 'Medium' ? '#856404' : '#155724'}; 
+                                padding: 2px 6px; border-radius: 10px; font-size: 0.8rem;">
+                    ${disease.severity} Severity
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+            
+            <h4>Crop Information:</h4>
+            <ul>
+              <li><strong>Expected Yield:</strong> ${crop.yield}</li>
+              <li><strong>Growth Duration:</strong> ${crop.duration}</li>
+            </ul>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 10px;">
+              <h4>🔍 Search for Specific Disease:</h4>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" id="diseaseSearchInput" placeholder="Enter disease name..." 
+                       style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                <button class="btn btn-primary" onclick="searchDisease('${crop.name}')">Search</button>
+              </div>
+            </div>
+            
+            <div style="margin-top: 15px; padding: 15px; background: #fff3e0; border-radius: 10px;">
+              <h4>🔬 Detect Disease by Symptoms:</h4>
+              <div style="margin-top: 10px;">
+                <textarea id="symptomsInput" placeholder="Describe the symptoms you see on your ${crop.name} plants (e.g., yellow spots, wilting leaves, brown lesions)..." 
+                         style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; min-height: 60px; resize: vertical;"></textarea>
+                <button class="btn btn-primary" onclick="detectDiseaseBySymptoms('${crop.name}')" style="margin-top: 10px;">Detect Disease</button>
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+              <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // Search for specific disease
+    async function searchDisease(cropName) {
+      const diseaseName = document.getElementById('diseaseSearchInput').value.trim();
+      if (!diseaseName) {
+        alert('Please enter a disease name to search.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/diseases/search/${encodeURIComponent(diseaseName)}`);
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+          showDiseaseResults(data.data, diseaseName);
+        } else {
+          alert(`No diseases found matching "${diseaseName}". Please try a different search term.`);
+        }
+      } catch (error) {
+        console.error('Error searching diseases:', error);
+        alert('Error searching for diseases. Please try again.');
+      }
+    }
+
+    // Show disease search results
+    function showDiseaseResults(diseases, searchTerm) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 800px;">
+          <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+          <div class="camera-container">
+            <h3>🔍 Disease Search Results for "${searchTerm}"</h3>
+            <div style="max-height: 500px; overflow-y: auto;">
+              ${diseases.map(disease => `
+                <div style="background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid #00baf2;">
+                  <h4 style="color: #333; margin-bottom: 10px;">
+                    ${disease.disease} (${disease.diseaseHindi}) - ${disease.crop} (${disease.hindi})
+                  </h4>
+                  <p style="margin: 5px 0;"><strong>Symptoms:</strong> ${disease.symptoms}</p>
+                  <p style="margin: 5px 0;"><strong>Treatment:</strong> ${disease.treatment}</p>
+                  <p style="margin: 5px 0;"><strong>Prevention:</strong> ${disease.prevention}</p>
+                  <span style="background: ${disease.severity === 'High' ? '#f8d7da' : disease.severity === 'Medium' ? '#fff3cd' : '#d4edda'}; 
+                                color: ${disease.severity === 'High' ? '#721c24' : disease.severity === 'Medium' ? '#856404' : '#155724'}; 
+                                padding: 4px 8px; border-radius: 15px; font-size: 0.9rem; font-weight: 600;">
+                    ${disease.severity} Severity
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+              <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // Detect disease by symptoms
+    async function detectDiseaseBySymptoms(cropName) {
+      const symptoms = document.getElementById('symptomsInput').value.trim();
+      if (!symptoms) {
+        alert('Please describe the symptoms you see on your plants.');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/diseases/detect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            cropName: cropName,
+            symptoms: symptoms
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          showSymptomDetectionResults(data.data);
+        } else {
+          alert('Error detecting disease. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error detecting disease:', error);
+        alert('Error detecting disease. Please try again.');
+      }
+    }
+
+    // Show symptom detection results
+    function showSymptomDetectionResults(data) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 900px;">
+          <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+          <div class="camera-container">
+            <h3>🔬 Disease Detection Results</h3>
+            <div style="background: #e8f5e8; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+              <h4 style="color: #2e7d32; margin-bottom: 10px;">Crop: ${data.crop} (${data.hindi})</h4>
+              <p><strong>Your Symptoms:</strong> ${data.symptoms}</p>
+              <p><strong>Matches Found:</strong> ${data.totalMatches} disease(s)</p>
+            </div>
+            
+            ${data.matchingDiseases.length > 0 ? `
+              <div style="max-height: 500px; overflow-y: auto;">
+                ${data.matchingDiseases.map((disease, index) => `
+                  <div style="background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid ${index === 0 ? '#28a745' : '#00baf2'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                      <h4 style="color: #333; margin: 0;">
+                        ${disease.name} (${disease.hindi})
+                        ${index === 0 ? '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-left: 10px;">BEST MATCH</span>' : ''}
+                      </h4>
+                      <span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.9rem; font-weight: 600;">
+                        ${disease.matchPercentage}% Match
+                      </span>
+                    </div>
+                    <p style="margin: 5px 0;"><strong>Symptoms:</strong> ${disease.symptoms}</p>
+                    <p style="margin: 5px 0;"><strong>Treatment:</strong> ${disease.treatment}</p>
+                    <p style="margin: 5px 0;"><strong>Prevention:</strong> ${disease.prevention}</p>
+                    <span style="background: ${disease.severity === 'High' ? '#f8d7da' : disease.severity === 'Medium' ? '#fff3cd' : '#d4edda'}; 
+                                  color: ${disease.severity === 'High' ? '#721c24' : disease.severity === 'Medium' ? '#856404' : '#155724'}; 
+                                  padding: 4px 8px; border-radius: 15px; font-size: 0.9rem; font-weight: 600;">
+                      ${disease.severity} Severity
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div style="text-align: center; padding: 40px; color: #666;">
+                <h4>No matching diseases found</h4>
+                <p>Try describing the symptoms more specifically or check if the crop name is correct.</p>
+              </div>
+            `}
+            
+            <div style="text-align: center; margin-top: 20px;">
+              <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // Focus on search input
+    function focusSearch() {
+      document.getElementById('cropSearchInput').focus();
+    }
+
+    // Open camera modal
+    function openCamera() {
+      const modal = document.getElementById('cameraModal');
+      modal.style.display = 'block';
+      
+      // Request camera access
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(mediaStream) {
+          stream = mediaStream;
+          const video = document.getElementById('cameraVideo');
+          video.srcObject = mediaStream;
+        })
+        .catch(function(err) {
+          console.error('Error accessing camera:', err);
+          alert('Unable to access camera. Please check permissions.');
+        });
+    }
+
+    // Close camera modal
+    function closeCamera() {
+      const modal = document.getElementById('cameraModal');
+      modal.style.display = 'none';
+      
+      // Stop camera stream
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+    }
+
+    // Capture photo
+    function capturePhoto() {
+      const video = document.getElementById('cameraVideo');
+      const canvas = document.getElementById('cameraCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      
+      // Convert to data URL
+      const dataURL = canvas.toDataURL('image/jpeg');
+      
+      // Store the captured image data
+      window.capturedImageData = dataURL;
+      
+      // Show the captured photo and analysis options
+      showCapturedPhoto(dataURL);
+      
+      // Close camera after capture
+      closeCamera();
+    }
+
+    // Show captured photo with full-page scrollable analysis
+    function showCapturedPhoto(imageData) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-content full-page-modal" style="width: 95vw; height: 95vh; max-width: none; max-height: none; margin: 2.5vh auto; overflow: hidden;">
+          <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+            <h3 style="margin: 0;">📸 Crop Photo Analysis</h3>
+            <span class="close" onclick="this.parentElement.parentElement.parentElement.remove()" style="font-size: 24px; cursor: pointer;">&times;</span>
+          </div>
+          
+          <div class="modal-body" style="height: calc(100% - 120px); overflow-y: auto; padding: 20px;">
+            <!-- Photo Section -->
+            <div class="photo-section" style="text-align: center; margin-bottom: 30px;">
+              <img src="${imageData}" alt="Captured crop photo" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons" style="text-align: center; margin-bottom: 30px;">
+              <button class="btn btn-primary" onclick="analyzeCapturedPhoto()" id="analyzeBtn">
+                🔍 Analyze Crop
+              </button>
+              <button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.parentElement.remove(); openCamera();">
+                📸 Retake Photo
+              </button>
+            </div>
+            
+            <!-- Analysis Results Section -->
+            <div id="analysisResults" style="display: none;">
+              <div class="analysis-header" style="text-align: center; margin-bottom: 20px;">
+                <h4 style="color: #007bff; margin-bottom: 10px;">🌾 Analysis Results</h4>
+                <div class="scroll-controls" style="margin-bottom: 15px;">
+                  <button class="btn btn-sm btn-secondary" onclick="scrollAnalysis('up')" id="scrollUpBtn">
+                    ⬆️ Scroll Up
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="scrollAnalysis('down')" id="scrollDownBtn">
+                    ⬇️ Scroll Down
+                  </button>
+                  <button class="btn btn-sm btn-info" onclick="scrollToTop()" id="scrollToTopBtn">
+                    🔝 Top
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Scrollable analysis content -->
+              <div id="analysisContent" class="analysis-scrollable" style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <!-- Analysis results will be displayed here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Initialize scroll functionality after modal is added
+      setTimeout(() => {
+        addScrollListener();
+        updateScrollButtons();
+      }, 100);
+    }
+
+    // Analyze the captured photo
+    async function analyzeCapturedPhoto() {
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const analysisResults = document.getElementById('analysisResults');
+      
+      if (!window.capturedImageData) {
+        showNetworkStatus('No photo captured. Please take a photo first.', 'error');
+        return;
+      }
+
+      analyzeBtn.innerHTML = '<span class="loading-spinner"></span>Analyzing...';
+      analyzeBtn.disabled = true;
+
+      try {
+        const analysisResult = await analyzeCropPhoto(window.capturedImageData);
+        displayAnalysisResults(analysisResult);
+        analysisResults.style.display = 'block';
+      } catch (error) {
+        console.error('Analysis failed:', error);
+        showNetworkStatus('Analysis failed. Please try again.', 'error');
+      } finally {
+        analyzeBtn.innerHTML = '🔍 Analyze Crop';
+        analyzeBtn.disabled = false;
+      }
+    }
+
+    // Analyze crop photo using intelligent image analysis
+    async function analyzeCropPhoto(imageData) {
+      try {
+        // Convert base64 to blob
+        const response = await fetch(imageData);
+        const blob = await response.blob();
+        
+        // Check file size (should be reasonable for a photo)
+        if (blob.size < 1000) {
+          throw new Error('Image too small or corrupted');
+        }
+        
+        if (blob.size > 10 * 1024 * 1024) {
+          throw new Error('Image too large. Please use an image smaller than 10MB');
+        }
+        
+        // Perform intelligent image analysis
+        const imageAnalysis = await analyzeImageCharacteristics(imageData);
+        
+        const formData = new FormData();
+        formData.append('photo', blob, 'crop-photo.jpg');
+
+        const result = await fetch('/api/crops/analyze-photo', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!result.ok) {
+          throw new Error(`Server error: ${result.status}`);
+        }
+
+        const data = await result.json();
+        
+        if (data.success) {
+          return data.data;
+        } else {
+          throw new Error(data.message || 'Analysis failed');
+        }
+      } catch (error) {
+        console.error('Photo analysis error:', error);
+        
+        // Check if it's a network error
+        if (error.message.includes('Failed to fetch') || error.message.includes('Server error')) {
+          showNoNetworkIndicator();
+          return getIntelligentMockAnalysis(imageData);
+        } else if (error.message.includes('too small') || error.message.includes('too large')) {
+          showNetworkStatus(error.message, 'error');
+          throw error; // Don't fall back to mock data for these errors
+        } else {
+          showNetworkStatus('Analysis failed. Using intelligent offline analysis...', 'warning');
+          return getIntelligentMockAnalysis(imageData);
+        }
+      }
+    }
+
+    // Analyze image characteristics to determine crop type
+    async function analyzeImageCharacteristics(imageData) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Set canvas size to image size
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          // Draw image to canvas
+          ctx.drawImage(img, 0, 0);
+          
+          // Get image data
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          // Analyze colors
+          let redSum = 0, greenSum = 0, blueSum = 0;
+          let pixelCount = 0;
+          let dominantColors = {};
+          
+          // Sample every 10th pixel for performance
+          for (let i = 0; i < data.length; i += 40) { // RGBA = 4 bytes per pixel, so 40 = 10 pixels
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            redSum += r;
+            greenSum += g;
+            blueSum += b;
+            pixelCount++;
+            
+            // Categorize colors
+            const colorCategory = categorizeColor(r, g, b);
+            dominantColors[colorCategory] = (dominantColors[colorCategory] || 0) + 1;
+          }
+          
+          const avgRed = redSum / pixelCount;
+          const avgGreen = greenSum / pixelCount;
+          const avgBlue = blueSum / pixelCount;
+          
+          // Determine crop type based on analysis
+          const cropType = determineCropType(avgRed, avgGreen, avgBlue, dominantColors, img.width, img.height);
+          
+          resolve({
+            avgRed,
+            avgGreen,
+            avgBlue,
+            dominantColors,
+            cropType,
+            imageSize: img.width * img.height,
+            aspectRatio: img.width / img.height
+          });
+        };
+        
+        img.src = imageData;
+      });
+    }
+
+    // Categorize colors into meaningful groups
+    function categorizeColor(r, g, b) {
+      // Red fruits (apples, tomatoes, etc.)
+      if (r > g && r > b && r > 150) return 'red';
+      // Green vegetables/fruits
+      if (g > r && g > b && g > 120) return 'green';
+      // Yellow/orange fruits
+      if (r > 150 && g > 100 && b < 100) return 'yellow_orange';
+      // Brown/earthy tones (cereals, soil)
+      if (r < 150 && g < 150 && b < 150 && (r + g + b) < 300) return 'brown';
+      // White/light colors
+      if (r > 200 && g > 200 && b > 200) return 'white';
+      // Blue/purple
+      if (b > r && b > g) return 'blue_purple';
+      
+      return 'other';
+    }
+
+    // Determine crop type based on image analysis with improved accuracy
+    function determineCropType(avgRed, avgGreen, avgBlue, dominantColors, width, height) {
+      const imageSize = width * height;
+      const aspectRatio = width / height;
+      
+      // Calculate dominant color and its percentage
+      const totalPixels = Object.values(dominantColors).reduce((sum, count) => sum + count, 0);
+      const maxColor = Object.keys(dominantColors).reduce((a, b) => 
+        dominantColors[a] > dominantColors[b] ? a : b
+      );
+      const maxColorPercentage = (dominantColors[maxColor] / totalPixels) * 100;
+      
+      console.log('Color Analysis:', {
+        avgRed, avgGreen, avgBlue,
+        dominantColors,
+        maxColor,
+        maxColorPercentage,
+        imageSize,
+        aspectRatio
+      });
+      
+      // More strict detection criteria - require higher color dominance
+      if (maxColorPercentage < 40) {
+        console.log('No dominant color detected (less than 40%)');
+        return 'unknown';
+      }
+      
+      // Apple detection - very strict red dominance
+      if (maxColor === 'red' && maxColorPercentage > 60 && avgRed > 160 && avgGreen < 80 && avgBlue < 80) {
+        console.log('Detected: Apple');
+        return 'apple';
+      }
+      
+      // Tomato detection - red with some green
+      if (maxColor === 'red' && maxColorPercentage > 50 && avgRed > 130 && avgGreen > 60 && avgGreen < 90) {
+        console.log('Detected: Tomato');
+        return 'tomato';
+      }
+      
+      // Orange detection - yellow/orange dominance
+      if (maxColor === 'yellow_orange' && maxColorPercentage > 55 && avgRed > 160 && avgGreen > 110 && avgBlue < 90) {
+        console.log('Detected: Orange');
+        return 'orange';
+      }
+      
+      // Banana detection - yellow dominance
+      if (maxColor === 'yellow_orange' && maxColorPercentage > 50 && avgRed > 110 && avgGreen > 160 && avgBlue < 100) {
+        console.log('Detected: Banana');
+        return 'banana';
+      }
+      
+      // Mango detection - balanced yellow/orange
+      if (maxColor === 'yellow_orange' && maxColorPercentage > 50 && avgRed > 130 && avgGreen > 130 && avgBlue < 70) {
+        console.log('Detected: Mango');
+        return 'mango';
+      }
+      
+      // Green vegetables - very strict green dominance
+      if (maxColor === 'green' && maxColorPercentage > 50 && avgGreen > 130) {
+        if (imageSize < 100000) {
+          console.log('Detected: Onion');
+          return 'onion';
+        }
+        console.log('Detected: Potato');
+        return 'potato';
+      }
+      
+      // Cereals - very strict brown/earthy dominance
+      if (maxColor === 'brown' && maxColorPercentage > 45 && avgRed < 110 && avgGreen < 110 && avgBlue < 110) {
+        if (aspectRatio > 1.5) {
+          console.log('Detected: Rice');
+          return 'rice';
+        }
+        if (imageSize > 200000) {
+          console.log('Detected: Maize');
+          return 'maize';
+        }
+        console.log('Detected: Wheat');
+        return 'wheat';
+      }
+      
+      // Check for human skin tones (common in selfies)
+      if (avgRed > 120 && avgRed < 200 && avgGreen > 100 && avgGreen < 180 && avgBlue > 80 && avgBlue < 150) {
+        console.log('Detected: Human skin tones - likely not a crop');
+        return 'human';
+      }
+      
+      // Check for indoor/artificial colors
+      if (avgRed > 200 && avgGreen > 200 && avgBlue > 200) {
+        console.log('Detected: Very light colors - likely indoor/artificial');
+        return 'indoor';
+      }
+      
+      console.log('No recognizable crop pattern detected');
+      return 'unknown';
+    }
+
+    // Intelligent mock analysis based on actual image characteristics
+    async function getIntelligentMockAnalysis(imageData) {
+      try {
+        // Analyze the actual image
+        const imageAnalysis = await analyzeImageCharacteristics(imageData);
+        const detectedCrop = imageAnalysis.cropType;
+        
+        console.log('Image Analysis Results:', imageAnalysis);
+        console.log('Detected Crop Type:', detectedCrop);
+        
+        // Return specific crop data based on detection
+        const cropDatabase = {
+          apple: {
+            name: 'Apple',
+            hindi: 'सेब',
+            scientificName: 'Malus domestica',
+            confidence: Math.floor(Math.random() * 20) + 80, // 80-100% for detected crops
+            diseases: [
+              {
+                name: 'Apple Scab',
+                hindi: 'सेब का खुरदरा रोग',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Dark, scaly lesions on leaves and fruit',
+                treatment: 'Fungicide spray, proper pruning, resistant varieties',
+                prevention: 'Good air circulation, avoid overhead watering, resistant varieties'
+              }
+            ],
+            weather: {
+              temperature: '15-25°C',
+              humidity: '60-70%',
+              rainfall: '600-1000mm'
+            },
+            yield: '15-25 tons/hectare',
+            duration: '3-5 years to fruit',
+            category: 'Fruit'
+          },
+          tomato: {
+            name: 'Tomato',
+            hindi: 'टमाटर',
+            scientificName: 'Solanum lycopersicum',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Early Blight',
+                hindi: 'अर्ली ब्लाइट',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Dark spots with concentric rings on leaves',
+                treatment: 'Fungicide spray, proper spacing',
+                prevention: 'Use resistant varieties, proper spacing, good air circulation'
+              }
+            ],
+            weather: {
+              temperature: '20-25°C',
+              humidity: '60-70%',
+              rainfall: '400-600mm'
+            },
+            yield: '25-40 tons/hectare',
+            duration: '90-120 days',
+            category: 'Vegetable'
+          },
+          orange: {
+            name: 'Orange',
+            hindi: 'संतरा',
+            scientificName: 'Citrus sinensis',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Citrus Canker',
+                hindi: 'सिट्रस कैंकर',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Raised lesions on leaves, stems, and fruit',
+                treatment: 'Copper fungicide, remove infected parts',
+                prevention: 'Use disease-free plants, proper sanitation'
+              }
+            ],
+            weather: {
+              temperature: '20-30°C',
+              humidity: '60-70%',
+              rainfall: '800-1200mm'
+            },
+            yield: '15-25 tons/hectare',
+            duration: '2-3 years to fruit',
+            category: 'Fruit'
+          },
+          banana: {
+            name: 'Banana',
+            hindi: 'केला',
+            scientificName: 'Musa acuminata',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Panama Disease',
+                hindi: 'पनामा रोग',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Yellowing leaves, wilting, plant death',
+                treatment: 'Remove infected plants, use resistant varieties',
+                prevention: 'Use disease-free planting material, resistant varieties'
+              }
+            ],
+            weather: {
+              temperature: '25-30°C',
+              humidity: '70-80%',
+              rainfall: '1200-2000mm'
+            },
+            yield: '20-40 tons/hectare',
+            duration: '9-12 months',
+            category: 'Fruit'
+          },
+          mango: {
+            name: 'Mango',
+            hindi: 'आम',
+            scientificName: 'Mangifera indica',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Anthracnose',
+                hindi: 'एन्थ्रेक्नोज़',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Dark spots on leaves and fruit, fruit rot',
+                treatment: 'Copper fungicide, proper pruning',
+                prevention: 'Good drainage, resistant varieties, proper spacing'
+              }
+            ],
+            weather: {
+              temperature: '25-35°C',
+              humidity: '70-80%',
+              rainfall: '1000-1500mm'
+            },
+            yield: '8-15 tons/hectare',
+            duration: '3-4 years to fruit',
+            category: 'Fruit'
+          },
+          potato: {
+            name: 'Potato',
+            hindi: 'आलू',
+            scientificName: 'Solanum tuberosum',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Late Blight',
+                hindi: 'लेट ब्लाइट',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Dark lesions on leaves and stems, tuber rot',
+                treatment: 'Fungicide spray, proper drainage',
+                prevention: 'Use certified seed, proper spacing, resistant varieties'
+              }
+            ],
+            weather: {
+              temperature: '15-20°C',
+              humidity: '70-80%',
+              rainfall: '500-800mm'
+            },
+            yield: '20-35 tons/hectare',
+            duration: '90-120 days',
+            category: 'Vegetable'
+          },
+          onion: {
+            name: 'Onion',
+            hindi: 'प्याज',
+            scientificName: 'Allium cepa',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Purple Blotch',
+                hindi: 'पर्पल ब्लॉच',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Purple lesions on leaves, bulb rot',
+                treatment: 'Fungicide spray, proper irrigation',
+                prevention: 'Crop rotation, resistant varieties, proper spacing'
+              }
+            ],
+            weather: {
+              temperature: '15-25°C',
+              humidity: '60-70%',
+              rainfall: '400-600mm'
+            },
+            yield: '15-25 tons/hectare',
+            duration: '120-150 days',
+            category: 'Vegetable'
+          },
+          rice: {
+            name: 'Rice',
+            hindi: 'चावल',
+            scientificName: 'Oryza sativa',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Blast Disease',
+                hindi: 'ब्लास्ट रोग',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Spindle-shaped lesions on leaves, neck rot',
+                treatment: 'Use resistant varieties, proper water management',
+                prevention: 'Plant resistant varieties, maintain proper spacing, avoid water stress'
+              }
+            ],
+            weather: {
+              temperature: '25-35°C',
+              humidity: '70-80%',
+              rainfall: '1000-2000mm'
+            },
+            yield: '4-6 tons/hectare',
+            duration: '120-150 days',
+            category: 'Cereal'
+          },
+          wheat: {
+            name: 'Wheat',
+            hindi: 'गेहूं',
+            scientificName: 'Triticum aestivum',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Rust Disease',
+                hindi: 'रस्ट रोग',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Orange-yellow pustules on leaves',
+                treatment: 'Resistant varieties, timely fungicide spray',
+                prevention: 'Use resistant varieties, proper spacing, good air circulation'
+              }
+            ],
+            weather: {
+              temperature: '15-25°C',
+              humidity: '50-70%',
+              rainfall: '500-750mm'
+            },
+            yield: '3-5 tons/hectare',
+            duration: '120-140 days',
+            category: 'Cereal'
+          },
+          maize: {
+            name: 'Maize',
+            hindi: 'मक्का',
+            scientificName: 'Zea mays',
+            confidence: Math.floor(Math.random() * 20) + 80,
+            diseases: [
+              {
+                name: 'Corn Smut',
+                hindi: 'कॉर्न स्मट',
+                confidence: Math.floor(Math.random() * 30) + 60,
+                symptoms: 'Large galls on ears and stalks',
+                treatment: 'Remove infected plants, fungicide treatment',
+                prevention: 'Crop rotation, resistant varieties, proper spacing'
+              }
+            ],
+            weather: {
+              temperature: '20-30°C',
+              humidity: '60-80%',
+              rainfall: '600-1000mm'
+            },
+            yield: '3-4 tons/hectare',
+            duration: '90-120 days',
+            category: 'Cereal'
+          }
+        };
+        
+        // Handle non-crop detections
+        if (detectedCrop === 'human' || detectedCrop === 'indoor' || detectedCrop === 'unknown') {
+          console.log(`Non-crop detected: ${detectedCrop}`);
+          return {
+            error: true,
+            message: 'No crop detected in the image. Please ensure the image contains a clear view of a crop, fruit, or vegetable.',
+            suggestions: [
+              'Make sure the crop/fruit is clearly visible in the image',
+              'Try taking a photo in better lighting',
+              'Ensure the crop takes up most of the frame',
+              'Focus on the fruit, vegetable, or plant clearly',
+              'Avoid photos of people, buildings, or other non-crop objects'
+            ]
+          };
+        }
+        
+        // Get the detected crop or fallback to random
+        let selectedCrop;
+        if (detectedCrop && cropDatabase[detectedCrop]) {
+          selectedCrop = { ...cropDatabase[detectedCrop] };
+          console.log(`Successfully detected: ${selectedCrop.name} (${selectedCrop.hindi})`);
+        } else {
+          // Only 30% chance of random fallback for truly unknown images
+          if (Math.random() < 0.3) {
+            const crops = Object.values(cropDatabase);
+            selectedCrop = { ...crops[Math.floor(Math.random() * crops.length)] };
+            console.log(`Detection failed, using random: ${selectedCrop.name}`);
+          } else {
+            console.log('Detection failed, returning no crop error');
+            return {
+              error: true,
+              message: 'No crop detected in the image. Please ensure the image contains a clear view of a crop, fruit, or vegetable.',
+              suggestions: [
+                'Make sure the crop/fruit is clearly visible in the image',
+                'Try taking a photo in better lighting',
+                'Ensure the crop takes up most of the frame',
+                'Focus on the fruit, vegetable, or plant clearly',
+                'Avoid photos of people, buildings, or other non-crop objects'
+              ]
+            };
+          }
+        }
+        
+        // Sometimes return healthy crop (no diseases) - 30% chance
+        if (Math.random() < 0.3) {
+          selectedCrop.diseases = [];
+        }
+        
+        return selectedCrop;
+        
+      } catch (error) {
+        console.error('Intelligent analysis failed:', error);
+        // Fallback to old random method
+        return getMockCropAnalysis();
+      }
+    }
+
+    // Fallback function for old random method
+    function getMockCropAnalysis() {
+      const crops = [
+        { name: 'Apple', hindi: 'सेब', scientificName: 'Malus domestica', category: 'Fruit' },
+        { name: 'Tomato', hindi: 'टमाटर', scientificName: 'Solanum lycopersicum', category: 'Vegetable' },
+        { name: 'Rice', hindi: 'चावल', scientificName: 'Oryza sativa', category: 'Cereal' }
+      ];
+      
+      const randomCrop = crops[Math.floor(Math.random() * crops.length)];
+      return {
+        name: randomCrop.name,
+        hindi: randomCrop.hindi,
+        scientificName: randomCrop.scientificName,
+        confidence: Math.floor(Math.random() * 30) + 70,
+        diseases: [],
+        weather: { temperature: '20-25°C', humidity: '60-70%', rainfall: '500-800mm' },
+        yield: '10-20 tons/hectare',
+        duration: '90-120 days',
+        category: randomCrop.category
+      };
+    }
+
+    // Display analysis results with scrollable container
+    function displayAnalysisResults(analysis) {
+      const analysisResults = document.getElementById('analysisResults');
+      const analysisContent = document.getElementById('analysisContent');
+      
+      // Handle error case (no crop detected)
+      if (analysis.error) {
+        let html = `
+          <div class="error-info" style="background: #f8d7da; padding: 20px; border-radius: 8px; border-left: 4px solid #dc3545; text-align: center;">
+            <h5 style="color: #721c24; margin-bottom: 15px;">❌ ${analysis.message}</h5>
+            <div style="text-align: left;">
+              <h6 style="color: #721c24; margin-bottom: 10px;">Suggestions:</h6>
+              <ul style="color: #721c24; margin: 0; padding-left: 20px;">
+        `;
+        
+        analysis.suggestions.forEach(suggestion => {
+          html += `<li style="margin-bottom: 5px;">${suggestion}</li>`;
+        });
+        
+        html += `
+              </ul>
+            </div>
+            <div style="margin-top: 15px;">
+              <button class="btn btn-primary" onclick="this.parentElement.parentElement.parentElement.parentElement.remove(); openCamera();">
+                📸 Try Again
+              </button>
+            </div>
+          </div>
+        `;
+        
+        analysisContent.innerHTML = html;
+        analysisResults.style.display = 'block';
+        return;
+      }
+      
+      // Normal crop analysis results
+      let html = `
+        <div class="crop-info" style="background: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 20px;">
+          <h5 style="color: #155724; margin-bottom: 15px;">🌾 Crop Information</h5>
+          <p><strong>Name:</strong> ${analysis.name} (${analysis.hindi})</p>
+          <p><strong>Scientific Name:</strong> ${analysis.scientificName}</p>
+          <p><strong>Confidence:</strong> ${analysis.confidence}%</p>
+          <p><strong>Category:</strong> ${analysis.category}</p>
+          <p><strong>Yield:</strong> ${analysis.yield}</p>
+          <p><strong>Duration:</strong> ${analysis.duration}</p>
+        </div>
+      `;
+
+      if (analysis.diseases && analysis.diseases.length > 0) {
+        html += `
+          <div class="disease-info" style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+            <h5 style="color: #856404; margin-bottom: 15px;">⚠️ Disease Detection</h5>
+        `;
+        
+        analysis.diseases.forEach(disease => {
+          html += `
+            <div style="margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 5px; border: 1px solid #dee2e6;">
+              <p><strong>${disease.name} (${disease.hindi})</strong> - ${disease.confidence}% confidence</p>
+              <p><strong>Symptoms:</strong> ${disease.symptoms}</p>
+              <p><strong>Treatment:</strong> ${disease.treatment}</p>
+              <p><strong>Prevention:</strong> ${disease.prevention}</p>
+            </div>
+          `;
+        });
+        
+        html += `</div>`;
+      } else {
+        html += `
+          <div class="crop-info" style="background: #d4edda; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 20px;">
+            <h5 style="color: #155724; margin-bottom: 15px;">✅ No Diseases Detected</h5>
+            <p>Your crop appears to be healthy!</p>
+          </div>
+        `;
+      }
+
+      if (analysis.weather) {
+        html += `
+          <div class="weather-info" style="background: #cce7ff; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff;">
+            <h5 style="color: #004085; margin-bottom: 15px;">🌤️ Weather Requirements</h5>
+            <p><strong>Temperature:</strong> ${analysis.weather.temperature}</p>
+            <p><strong>Humidity:</strong> ${analysis.weather.humidity}</p>
+            <p><strong>Rainfall:</strong> ${analysis.weather.rainfall}</p>
+          </div>
+        `;
+      }
+
+      analysisContent.innerHTML = html;
+      analysisResults.style.display = 'block';
+      
+      // Scroll to top when results are displayed
+      setTimeout(() => {
+        const scrollableDiv = document.getElementById('analysisContent');
+        if (scrollableDiv) {
+          scrollableDiv.scrollTop = 0;
+        }
+      }, 100);
+    }
+
+    // Scroll analysis content up or down
+    function scrollAnalysis(direction) {
+      const scrollableDiv = document.getElementById('analysisContent');
+      if (!scrollableDiv) return;
+      
+      const scrollAmount = 100; // pixels to scroll
+      
+      if (direction === 'up') {
+        scrollableDiv.scrollTop -= scrollAmount;
+      } else if (direction === 'down') {
+        scrollableDiv.scrollTop += scrollAmount;
+      }
+      
+      // Update button states based on scroll position
+      updateScrollButtons();
+    }
+
+    // Scroll to top function
+    function scrollToTop() {
+      const scrollableDiv = document.getElementById('analysisContent');
+      if (!scrollableDiv) return;
+      
+      scrollableDiv.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Update button states
+      setTimeout(() => {
+        updateScrollButtons();
+      }, 300);
+    }
+
+    // Update scroll button states
+    function updateScrollButtons() {
+      const scrollableDiv = document.getElementById('analysisContent');
+      const scrollUpBtn = document.getElementById('scrollUpBtn');
+      const scrollDownBtn = document.getElementById('scrollDownBtn');
+      const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+      
+      if (!scrollableDiv || !scrollUpBtn || !scrollDownBtn) return;
+      
+      const isAtTop = scrollableDiv.scrollTop <= 0;
+      const isAtBottom = scrollableDiv.scrollTop >= (scrollableDiv.scrollHeight - scrollableDiv.clientHeight);
+      
+      // Update button states
+      scrollUpBtn.disabled = isAtTop;
+      scrollDownBtn.disabled = isAtBottom;
+      
+      // Update button styles
+      scrollUpBtn.style.opacity = isAtTop ? '0.5' : '1';
+      scrollDownBtn.style.opacity = isAtBottom ? '0.5' : '1';
+      
+      // Update scroll to top button
+      if (scrollToTopBtn) {
+        scrollToTopBtn.style.opacity = isAtTop ? '0.5' : '1';
+        scrollToTopBtn.disabled = isAtTop;
+      }
+    }
+
+    // Add scroll event listener to update button states
+    function addScrollListener() {
+      const scrollableDiv = document.getElementById('analysisContent');
+      if (scrollableDiv) {
+        scrollableDiv.addEventListener('scroll', updateScrollButtons);
+      }
+    }
+
+    // Network status functions
+    function showNetworkStatus(message, type = 'info') {
+      const statusElement = document.getElementById('networkStatus');
+      statusElement.textContent = message;
+      statusElement.className = `network-status ${type}`;
+      statusElement.style.display = 'block';
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        statusElement.style.display = 'none';
+      }, 3000);
+    }
+
+    function showNoNetworkIndicator() {
+      const overlay = document.getElementById('noNetworkOverlay');
+      const banner = document.getElementById('noNetworkBanner');
+      
+      // Show banner at top
+      banner.style.display = 'block';
+      
+      // Show overlay with blinking logo
+      overlay.style.display = 'flex';
+      
+      // Hide overlay after 3 seconds (blinking animation completes)
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 3000);
+      
+      // Keep banner visible until network is restored
+      checkNetworkConnection();
+    }
+
+    function hideNoNetworkIndicator() {
+      const overlay = document.getElementById('noNetworkOverlay');
+      const banner = document.getElementById('noNetworkBanner');
+      
+      overlay.style.display = 'none';
+      banner.style.display = 'none';
+    }
+
+    function checkNetworkConnection() {
+      if (navigator.onLine) {
+        hideNoNetworkIndicator();
+        showNetworkStatus('Network connection restored', 'success');
+      } else {
+        // Check again in 2 seconds
+        setTimeout(checkNetworkConnection, 2000);
+      }
+    }
+
+    // Listen for network status changes
+    window.addEventListener('online', () => {
+      hideNoNetworkIndicator();
+      showNetworkStatus('Network connection restored', 'success');
+    });
+
+    window.addEventListener('offline', () => {
+      showNoNetworkIndicator();
+    });
+
+    // Show weather information
+    function showWeather() {
+      const modal = document.getElementById('weatherModal');
+      modal.style.display = 'block';
+      loadWeatherData();
+    }
+
+    // Close weather modal
+    function closeWeather() {
+      const modal = document.getElementById('weatherModal');
+      modal.style.display = 'none';
+    }
+
+    // Load weather data and recommendations
+    async function loadWeatherData() {
+      try {
+        const location = document.getElementById('stateSelect').value;
+        const temperature = document.getElementById('tempInput').value;
+        const humidity = document.getElementById('humidityInput').value;
+        const rainfall = document.getElementById('rainfallInput').value;
+        
+        const params = new URLSearchParams();
+        if (location) params.append('location', location);
+        if (temperature) params.append('temperature', temperature);
+        if (humidity) params.append('humidity', humidity);
+        if (rainfall) params.append('rainfall', rainfall);
+        
+        const response = await fetch(`/api/weather/recommendations?${params}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          const weather = data.data.current;
+          const recommendations = data.data.recommendations;
+          
+          // Update current weather display
+          document.getElementById('currentTemp').textContent = weather.temperature + '°C';
+          document.getElementById('currentHumidity').textContent = weather.humidity + '%';
+          document.getElementById('currentRainfall').textContent = weather.rainfall + 'mm';
+          document.getElementById('currentLocation').textContent = weather.location;
+          
+          // Display crop recommendations
+          const recommendationsContainer = document.getElementById('cropRecommendations');
+          recommendationsContainer.innerHTML = recommendations.map(rec => `
+            <div class="recommendation-card">
+              <div class="recommendation-suitability suitability-${rec.suitability.toLowerCase()}">
+                ${rec.suitability} Suitability
+              </div>
+              <h5>${rec.crop} (${rec.hindi})</h5>
+              <p>${rec.advice}</p>
+              <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                <strong>States:</strong> ${rec.states ? rec.states.slice(0, 3).join(', ') + (rec.states.length > 3 ? '...' : '') : 'N/A'}
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error loading weather data:', error);
+        document.getElementById('cropRecommendations').innerHTML = 
+          '<p>Unable to load weather data. Please try again later.</p>';
+      }
+    }
+
+    // Update weather when inputs change
+    function updateWeather() {
+      const temp = document.getElementById('tempInput').value;
+      const humidity = document.getElementById('humidityInput').value;
+      const rainfall = document.getElementById('rainfallInput').value;
+      
+      document.getElementById('currentTemp').textContent = temp + '°C';
+      document.getElementById('currentHumidity').textContent = humidity + '%';
+      document.getElementById('currentRainfall').textContent = rainfall + 'mm';
+      
+      loadWeatherData();
+    }
+
+    // Update location
+    function updateLocation() {
+      const location = document.getElementById('stateSelect').value;
+      document.getElementById('currentLocation').textContent = location || 'Default Location';
+      loadWeatherData();
+    }
+
+    // Update season recommendations
+    async function updateSeasonRecommendations() {
+      const season = document.getElementById('seasonSelect').value;
+      if (!season) return;
+      
+      try {
+        const response = await fetch(`/api/crops/season/${season}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          const recommendationsContainer = document.getElementById('cropRecommendations');
+          recommendationsContainer.innerHTML = `
+            <h5 style="margin-bottom: 15px; color: #333;">🌾 Crops suitable for ${season.charAt(0).toUpperCase() + season.slice(1)} season:</h5>
+            ${data.data.map(crop => `
+              <div class="recommendation-card">
+                <div class="recommendation-suitability suitability-excellent">
+                  ${crop.weather.season}
+                </div>
+                <h5>${crop.name} (${crop.hindi})</h5>
+                <p><strong>Temperature:</strong> ${crop.weather.temperature} | <strong>Rainfall:</strong> ${crop.weather.rainfall}</p>
+                <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                  <strong>States:</strong> ${crop.states ? crop.states.slice(0, 3).join(', ') + (crop.states.length > 3 ? '...' : '') : 'N/A'}
+                </div>
+              </div>
+            `).join('')}
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading season data:', error);
+      }
+    }
+
+    // Show analytics
+    function showAnalytics() {
+      const modal = document.getElementById('analyticsModal');
+      modal.style.display = 'block';
+      // Initialize charts when modal opens
+      setTimeout(initializeCharts, 100);
+    }
+
+    // Close analytics modal
+    function closeAnalytics() {
+      const modal = document.getElementById('analyticsModal');
+      modal.style.display = 'none';
+    }
+
+    // Initialize visual charts
+    function initializeCharts() {
+      // Crop Search History Chart
+      const cropSearchCtx = document.getElementById('cropSearchChart').getContext('2d');
+      new Chart(cropSearchCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Rice', 'Wheat', 'Tomato', 'Potato', 'Cotton', 'Maize'],
+          datasets: [{
+            label: 'Search Count',
+            data: [45, 30, 25, 20, 15, 12],
+            backgroundColor: [
+              '#00baf2',
+              '#28a745',
+              '#ffc107',
+              '#dc3545',
+              '#6f42c1',
+              '#fd7e14'
+            ],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#666'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#666'
+              }
+            }
+          }
+        }
+      });
+
+      // Disease Detection Trends Chart
+      const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+      new Chart(diseaseCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Disease Cases',
+            data: [12, 19, 8, 15, 22, 18],
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#666'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#666'
+              }
+            }
+          }
+        }
+      });
+
+      // Weather Impact Analysis Chart
+      const weatherCtx = document.getElementById('weatherChart').getContext('2d');
+      new Chart(weatherCtx, {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: 'Temperature vs Yield',
+            data: [
+              {x: 20, y: 60}, {x: 25, y: 85}, {x: 30, y: 90}, 
+              {x: 35, y: 70}, {x: 40, y: 45}
+            ],
+            backgroundColor: '#00baf2',
+            borderColor: '#007bff'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Temperature (°C)',
+                color: '#666'
+              },
+              ticks: {
+                color: '#666'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Yield (%)',
+                color: '#666'
+              },
+              ticks: {
+                color: '#666'
+              }
+            }
+          }
+        }
+      });
+
+      // Crop Performance Metrics Chart
+      const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+      new Chart(performanceCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Cereals', 'Vegetables', 'Cash Crops', 'Fruits', 'Spices'],
+          datasets: [{
+            data: [35, 25, 20, 12, 8],
+            backgroundColor: [
+              '#00baf2',
+              '#28a745',
+              '#ffc107',
+              '#dc3545',
+              '#6f42c1'
+            ],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#666',
+                padding: 15
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Main search functionality
+    document.getElementById('mainSearch').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') {
+        const query = this.value.toLowerCase().trim();
+        if (query) {
+          // Search across all crops
+          const allCrops = [...cropDatabase.english, ...cropDatabase.hindi];
+          const results = allCrops.filter(crop => 
+            crop.name.toLowerCase().includes(query) || 
+            (crop.hindi && crop.hindi.toLowerCase().includes(query)) ||
+            (crop.english && crop.english.toLowerCase().includes(query))
+          );
+          
+          if (results.length > 0) {
+            // Focus on crop search and populate results
+            document.getElementById('cropSearchInput').value = query;
+            searchCrops();
+            document.getElementById('cropSearchInput').scrollIntoView({ behavior: 'smooth' });
+          } else {
+            alert('No results found for: ' + query);
+          }
+        }
+      }
+    });
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuth();
+      
+      // Load initial crop suggestions
+      const initialCrops = cropDatabase.english.slice(0, 8);
+      displayCropResults(initialCrops);
+      
+      // Load reviews and initialize star rating
+      loadReviews();
+      initializeStarRating();
+      
+      // Initialize blockchain features
+      initializeBlockchain();
+    });
+
+    // Initialize blockchain features
+    async function initializeBlockchain() {
+      try {
+        const blockchainEnabled = await blockchainIntegration.init();
+        if (blockchainEnabled) {
+          console.log('🔗 Blockchain features enabled');
+          // Add blockchain-specific styling
+          addBlockchainStyles();
+        } else {
+          console.log('⚠️ Blockchain features disabled - MetaMask not available');
+        }
+      } catch (error) {
+        console.error('❌ Blockchain initialization failed:', error);
+      }
+    }
+
+    // Add blockchain-specific styles
+    function addBlockchainStyles() {
+      const style = document.createElement('style');
+      style.textContent = `
+        .blockchain-section {
+          margin: 30px 0;
+          padding: 20px;
+          background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+          border-radius: 15px;
+          border: 2px solid #28a745;
+        }
+        
+        .blockchain-features {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+          margin-top: 20px;
+        }
+        
+        .feature-card {
+          background: white;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+        }
+        
+        .feature-card:hover {
+          transform: translateY(-5px);
+          border-color: #00baf2;
+          box-shadow: 0 8px 25px rgba(0,186,242,0.15);
+        }
+        
+        .feature-icon {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+        }
+        
+        .marketplace-section {
+          margin: 30px 0;
+          padding: 20px;
+          background: linear-gradient(135deg, #fff3e0 0%, #f3e5f5 100%);
+          border-radius: 15px;
+          border: 2px solid #ff9800;
+        }
+        
+        .marketplace-actions {
+          display: flex;
+          gap: 15px;
+          margin: 20px 0;
+          flex-wrap: wrap;
+        }
+        
+        .marketplace-listings {
+          margin-top: 20px;
+        }
+        
+        .blockchain-status {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .verification-badge {
+          margin-left: 10px;
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Load reviews from API
+    async function loadReviews() {
+      try {
+        const response = await fetch('/api/reviews');
+        const data = await response.json();
+        
+        if (data.success) {
+          displayReviews(data.data);
+        }
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+        // Fallback to empty state
+        document.getElementById('reviewsGrid').innerHTML = '<p style="text-align: center; color: #666;">No reviews available yet.</p>';
+      }
+    }
+
+    // Display reviews
+    function displayReviews(reviews) {
+      const reviewsGrid = document.getElementById('reviewsGrid');
+      
+      if (reviews.length === 0) {
+        reviewsGrid.innerHTML = '<p style="text-align: center; color: #666;">No reviews available yet. Be the first to share your experience!</p>';
+        return;
+      }
+
+      reviewsGrid.innerHTML = reviews.slice(0, 6).map(review => `
+        <div class="review-card">
+          <div class="review-stars">${'⭐'.repeat(review.rating)}</div>
+          <p class="review-text">"${review.review}"</p>
+          <div class="review-author">
+            <div class="author-avatar">${review.userName.charAt(0).toUpperCase()}</div>
+            <div class="author-info">
+              <div class="author-name">${review.userName}</div>
+              <div class="author-location">${review.userLocation}</div>
+              <div class="review-crop" style="font-size: 0.8rem; color: #999; margin-top: 2px;">Crop: ${review.crop}</div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <span style="font-size: 0.8rem; color: #999;">${new Date(review.timestamp).toLocaleDateString()}</span>
+            <button onclick="markHelpful(${review.id})" style="background: none; border: none; color: #007bff; cursor: pointer; font-size: 0.8rem;">
+              👍 Helpful (${review.helpful})
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Show add review modal
+    function showAddReviewModal() {
+      document.getElementById('addReviewModal').style.display = 'block';
+    }
+
+    // Close add review modal
+    function closeAddReviewModal() {
+      document.getElementById('addReviewModal').style.display = 'none';
+    }
+
+    // Initialize star rating
+    function initializeStarRating() {
+      const stars = document.querySelectorAll('.star-rating');
+      stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+          const rating = index + 1;
+          document.getElementById('reviewRating').value = rating;
+          
+          // Update star display
+          stars.forEach((s, i) => {
+            s.style.opacity = i < rating ? '1' : '0.3';
+          });
+        });
+      });
+    }
+
+    // Submit review
+    document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitReviewBtn');
+      const submitBtnText = document.getElementById('submitBtnText');
+      const submitLoadingSpinner = document.getElementById('submitLoadingSpinner');
+      const reviewMessage = document.getElementById('reviewMessage');
+      
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtnText.style.display = 'none';
+      submitLoadingSpinner.style.display = 'block';
+      reviewMessage.innerHTML = '';
+      
+      try {
+        const reviewData = {
+          userId: localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')).id : 'anonymous',
+          userName: document.getElementById('reviewerName').value.trim(),
+          userLocation: document.getElementById('reviewerLocation').value.trim(),
+          rating: parseInt(document.getElementById('reviewRating').value),
+          review: document.getElementById('reviewText').value.trim(),
+          crop: document.getElementById('reviewCrop').value
+        };
+        
+        const response = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reviewData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          reviewMessage.innerHTML = '<div class="message success">Review submitted successfully! Thank you for your feedback.</div>';
+          document.getElementById('reviewForm').reset();
+          document.getElementById('reviewRating').value = '5';
+          
+          // Reload reviews
+          setTimeout(() => {
+            loadReviews();
+            closeAddReviewModal();
+          }, 1500);
+        } else {
+          reviewMessage.innerHTML = '<div class="message error">Failed to submit review. Please try again.</div>';
+        }
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        reviewMessage.innerHTML = '<div class="message error">Error submitting review. Please try again.</div>';
+      } finally {
+        // Hide loading state
+        submitBtn.disabled = false;
+        submitBtnText.style.display = 'block';
+        submitLoadingSpinner.style.display = 'none';
+      }
+    });
+
+    // Mark review as helpful
+    async function markHelpful(reviewId) {
+      try {
+        const response = await fetch(`/api/reviews/${reviewId}/helpful`, {
+          method: 'POST'
+        });
+        
+        if (response.ok) {
+          // Reload reviews to show updated helpful count
+          loadReviews();
+        }
+      } catch (error) {
+        console.error('Error marking review as helpful:', error);
+      }
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('cameraModal');
+      if (event.target === modal) {
+        closeCamera();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<svg width="120" height="80" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Lotus Flower with Circuit Pattern -->
+  <defs>
+    <pattern id="circuitPattern" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.5" fill="currentColor" opacity="0.6"/>
+      <circle cx="6" cy="6" r="0.5" fill="currentColor" opacity="0.6"/>
+      <line x1="2" y1="2" x2="6" y2="6" stroke="currentColor" stroke-width="0.3" opacity="0.4"/>
+      <line x1="4" y1="0" x2="4" y2="8" stroke="currentColor" stroke-width="0.2" opacity="0.3"/>
+      <line x1="0" y1="4" x2="8" y2="4" stroke="currentColor" stroke-width="0.2" opacity="0.3"/>
+    </pattern>
+  </defs>
+  
+  <!-- Lotus Petals -->
+  <g transform="translate(60, 20)">
+    <!-- Left half (Green) -->
+    <path d="M-15,-10 Q-20,0 -15,10 Q-10,15 0,10 Q-5,5 -10,0 Q-5,-5 0,-10 Q-10,-15 -15,-10" fill="#10b981" opacity="0.9"/>
+    <path d="M-12,-8 Q-16,0 -12,8 Q-8,12 0,8 Q-4,4 -8,0 Q-4,-4 0,-8 Q-8,-12 -12,-8" fill="url(#circuitPattern)" fill-opacity="0.3"/>
+    
+    <!-- Right half (Golden Orange) -->
+    <path d="M15,-10 Q20,0 15,10 Q10,15 0,10 Q5,5 10,0 Q5,-5 0,-10 Q10,-15 15,-10" fill="#f59e0b" opacity="0.9"/>
+    <path d="M12,-8 Q16,0 12,8 Q8,12 0,8 Q4,4 8,0 Q4,-4 0,-8 Q8,-12 12,-8" fill="url(#circuitPattern)" fill-opacity="0.3"/>
+    
+    <!-- Center circle -->
+    <circle cx="0" cy="0" r="6" fill="#1e40af" opacity="0.8"/>
+    <circle cx="0" cy="0" r="4" fill="url(#circuitPattern)" fill-opacity="0.4"/>
+  </g>
+  
+  <!-- AT Letters -->
+  <g transform="translate(60, 45)">
+    <!-- Letter A -->
+    <path d="M-12,0 L-8,-12 L-4,0 M-10,-4 L-6,-4" stroke="#1e40af" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Letter T -->
+    <path d="M-2,-12 L2,-12 M0,-12 L0,0" stroke="#f59e0b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- 3D effect for T -->
+    <path d="M2,-12 L3,-11 L3,1 L2,0" fill="#f59e0b" opacity="0.3"/>
+  </g>
+  
+  <!-- AYUR-TECH Text -->
+  <text x="60" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#1e40af">AYUR-TECH</text>
+</svg>
+
+
