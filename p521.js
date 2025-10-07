@@ -1,16 +1,19 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.encodeToCurve = exports.hashToCurve = exports.secp521r1 = exports.p521 = void 0;
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-import { createCurve } from './_shortw_utils.js';
-import { sha512 } from '@noble/hashes/sha512';
-import { Field } from './abstract/modular.js';
-import { mapToCurveSimpleSWU } from './abstract/weierstrass.js';
-import { createHasher } from './abstract/hash-to-curve.js';
+const _shortw_utils_js_1 = require("./_shortw_utils.js");
+const sha512_1 = require("@noble/hashes/sha512");
+const modular_js_1 = require("./abstract/modular.js");
+const weierstrass_js_1 = require("./abstract/weierstrass.js");
+const hash_to_curve_js_1 = require("./abstract/hash-to-curve.js");
 // NIST secp521r1 aka p521
 // Note that it's 521, which differs from 512 of its hash function.
 // https://www.secg.org/sec2-v2.pdf, https://neuromancer.sk/std/nist/P-521
 // Field over which we'll do calculations.
 // prettier-ignore
 const P = BigInt('0x1ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-const Fp = Field(P);
+const Fp = (0, modular_js_1.Field)(P);
 const CURVE = {
     a: Fp.create(BigInt('-3')),
     b: BigInt('0x0051953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00'),
@@ -21,7 +24,7 @@ const CURVE = {
     h: BigInt(1),
 };
 // prettier-ignore
-export const p521 = createCurve({
+exports.p521 = (0, _shortw_utils_js_1.createCurve)({
     a: CURVE.a,
     b: CURVE.b,
     Fp,
@@ -32,22 +35,22 @@ export const p521 = createCurve({
     h: CURVE.h,
     lowS: false,
     allowedPrivateKeyLengths: [130, 131, 132] // P521 keys are variable-length. Normalize to 132b
-}, sha512);
-export const secp521r1 = p521;
-const mapSWU = /* @__PURE__ */ (() => mapToCurveSimpleSWU(Fp, {
+}, sha512_1.sha512);
+exports.secp521r1 = exports.p521;
+const mapSWU = /* @__PURE__ */ (() => (0, weierstrass_js_1.mapToCurveSimpleSWU)(Fp, {
     A: CURVE.a,
     B: CURVE.b,
     Z: Fp.create(BigInt('-4')),
 }))();
-const htf = /* @__PURE__ */ (() => createHasher(secp521r1.ProjectivePoint, (scalars) => mapSWU(scalars[0]), {
+const htf = /* @__PURE__ */ (() => (0, hash_to_curve_js_1.createHasher)(exports.secp521r1.ProjectivePoint, (scalars) => mapSWU(scalars[0]), {
     DST: 'P521_XMD:SHA-512_SSWU_RO_',
     encodeDST: 'P521_XMD:SHA-512_SSWU_NU_',
     p: Fp.ORDER,
     m: 1,
     k: 256,
     expand: 'xmd',
-    hash: sha512,
+    hash: sha512_1.sha512,
 }))();
-export const hashToCurve = /* @__PURE__ */ (() => htf.hashToCurve)();
-export const encodeToCurve = /* @__PURE__ */ (() => htf.encodeToCurve)();
+exports.hashToCurve = (() => htf.hashToCurve)();
+exports.encodeToCurve = (() => htf.encodeToCurve)();
 //# sourceMappingURL=p521.js.map

@@ -1,4 +1,7 @@
+"use strict";
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.bls12_381 = void 0;
 // bls12-381 pairing-friendly Barreto-Lynn-Scott elliptic curve construction allows to:
 // - Construct zk-SNARKs at the 128-bit security
 // - Use threshold signatures, which allows a user to sign lots of messages with one signature and
@@ -26,14 +29,14 @@
 // - `e(G, S) = e(G, SUM(n)(Si)) = MUL(n)(e(G, Si))` - signature aggregation
 // Filecoin uses little endian byte arrays for private keys -
 // so ensure to reverse byte order if you'll use it with FIL.
-import { sha256 } from '@noble/hashes/sha256';
-import { randomBytes } from '@noble/hashes/utils';
-import { bls } from './abstract/bls.js';
-import * as mod from './abstract/modular.js';
-import { concatBytes as concatB, ensureBytes, numberToBytesBE, bytesToNumberBE, bitLen, bitSet, bitGet, bitMask, bytesToHex, } from './abstract/utils.js';
+const sha256_1 = require("@noble/hashes/sha256");
+const utils_1 = require("@noble/hashes/utils");
+const bls_js_1 = require("./abstract/bls.js");
+const mod = require("./abstract/modular.js");
+const utils_js_1 = require("./abstract/utils.js");
 // Types
-import { mapToCurveSimpleSWU, } from './abstract/weierstrass.js';
-import { isogenyMap } from './abstract/hash-to-curve.js';
+const weierstrass_js_1 = require("./abstract/weierstrass.js");
+const hash_to_curve_js_1 = require("./abstract/hash-to-curve.js");
 // Be friendly to bad ECMAScript parsers by not using bigint literals
 // prettier-ignore
 const _0n = BigInt(0), _1n = BigInt(1), _2n = BigInt(2), _3n = BigInt(3), _4n = BigInt(4);
@@ -80,9 +83,9 @@ const Fp2Square = ({ c0, c1 }) => {
 const FP2_ORDER = Fp_raw * Fp_raw;
 const Fp2 = {
     ORDER: FP2_ORDER,
-    BITS: bitLen(FP2_ORDER),
-    BYTES: Math.ceil(bitLen(FP2_ORDER) / 8),
-    MASK: bitMask(bitLen(FP2_ORDER)),
+    BITS: (0, utils_js_1.bitLen)(FP2_ORDER),
+    BYTES: Math.ceil((0, utils_js_1.bitLen)(FP2_ORDER) / 8),
+    MASK: (0, utils_js_1.bitMask)((0, utils_js_1.bitLen)(FP2_ORDER)),
     ZERO: { c0: Fp.ZERO, c1: Fp.ZERO },
     ONE: { c0: Fp.ONE, c1: Fp.ZERO },
     create: (num) => num,
@@ -162,7 +165,7 @@ const Fp2 = {
             throw new Error(`fromBytes wrong length=${b.length}`);
         return { c0: Fp.fromBytes(b.subarray(0, Fp.BYTES)), c1: Fp.fromBytes(b.subarray(Fp.BYTES)) };
     },
-    toBytes: ({ c0, c1 }) => concatB(Fp.toBytes(c0), Fp.toBytes(c1)),
+    toBytes: ({ c0, c1 }) => (0, utils_js_1.concatBytes)(Fp.toBytes(c0), Fp.toBytes(c1)),
     cmov: ({ c0, c1 }, { c0: r0, c1: r1 }, c) => ({
         c0: Fp.cmov(c0, r0, c),
         c1: Fp.cmov(c1, r1, c),
@@ -267,7 +270,7 @@ const Fp6 = {
     ORDER: Fp2.ORDER,
     BITS: 3 * Fp2.BITS,
     BYTES: 3 * Fp2.BYTES,
-    MASK: bitMask(3 * Fp2.BITS),
+    MASK: (0, utils_js_1.bitMask)(3 * Fp2.BITS),
     ZERO: { c0: Fp2.ZERO, c1: Fp2.ZERO, c2: Fp2.ZERO },
     ONE: { c0: Fp2.ONE, c1: Fp2.ZERO, c2: Fp2.ZERO },
     create: (num) => num,
@@ -310,7 +313,7 @@ const Fp6 = {
             c2: Fp2.fromBytes(b.subarray(2 * Fp2.BYTES)),
         };
     },
-    toBytes: ({ c0, c1, c2 }) => concatB(Fp2.toBytes(c0), Fp2.toBytes(c1), Fp2.toBytes(c2)),
+    toBytes: ({ c0, c1, c2 }) => (0, utils_js_1.concatBytes)(Fp2.toBytes(c0), Fp2.toBytes(c1), Fp2.toBytes(c2)),
     cmov: ({ c0, c1, c2 }, { c0: r0, c1: r1, c2: r2 }, c) => ({
         c0: Fp2.cmov(c0, r0, c),
         c1: Fp2.cmov(c1, r1, c),
@@ -408,7 +411,7 @@ const FP6_FROBENIUS_COEFFICIENTS_2 = [
 ].map((pair) => Fp2.fromBigTuple(pair));
 // The BLS parameter x for BLS12-381
 const BLS_X = BigInt('0xd201000000010000');
-const BLS_X_LEN = bitLen(BLS_X);
+const BLS_X_LEN = (0, utils_js_1.bitLen)(BLS_X);
 const Fp12Add = ({ c0, c1 }, { c0: r0, c1: r1 }) => ({
     c0: Fp6.add(c0, r0),
     c1: Fp6.add(c1, r1),
@@ -449,7 +452,7 @@ const Fp12 = {
     ORDER: Fp2.ORDER,
     BITS: 2 * Fp2.BITS,
     BYTES: 2 * Fp2.BYTES,
-    MASK: bitMask(2 * Fp2.BITS),
+    MASK: (0, utils_js_1.bitMask)(2 * Fp2.BITS),
     ZERO: { c0: Fp6.ZERO, c1: Fp6.ZERO },
     ONE: { c0: Fp6.ONE, c1: Fp6.ZERO },
     create: (num) => num,
@@ -486,7 +489,7 @@ const Fp12 = {
             c1: Fp6.fromBytes(b.subarray(Fp6.BYTES)),
         };
     },
-    toBytes: ({ c0, c1 }) => concatB(Fp6.toBytes(c0), Fp6.toBytes(c1)),
+    toBytes: ({ c0, c1 }) => (0, utils_js_1.concatBytes)(Fp6.toBytes(c0), Fp6.toBytes(c1)),
     cmov: ({ c0, c1 }, { c0: r0, c1: r1 }, c) => ({
         c0: Fp6.cmov(c0, r0, c),
         c1: Fp6.cmov(c1, r1, c),
@@ -559,7 +562,7 @@ const Fp12 = {
         let z = Fp12.ONE;
         for (let i = BLS_X_LEN - 1; i >= 0; i--) {
             z = Fp12._cyclotomicSquare(z);
-            if (bitGet(n, i))
+            if ((0, utils_js_1.bitGet)(n, i))
                 z = Fp12.mul(z, num);
         }
         return z;
@@ -636,7 +639,7 @@ const FP12_FROBENIUS_COEFFICIENTS = [
 // END OF CURVE FIELDS
 // HashToCurve
 // 3-isogeny map from E' to E https://www.rfc-editor.org/rfc/rfc9380#appendix-E.3
-const isogenyMapG2 = isogenyMap(Fp2, [
+const isogenyMapG2 = (0, hash_to_curve_js_1.isogenyMap)(Fp2, [
     // xNum
     [
         [
@@ -705,7 +708,7 @@ const isogenyMapG2 = isogenyMap(Fp2, [
     ],
 ].map((i) => i.map((pair) => Fp2.fromBigTuple(pair.map(BigInt)))));
 // 11-isogeny map from E' to E
-const isogenyMapG1 = isogenyMap(Fp, [
+const isogenyMapG1 = (0, hash_to_curve_js_1.isogenyMap)(Fp, [
     // xNum
     [
         '0x11a05f2b1e833340b809101dd99815856b303e88a2d7005ff2627b56cdb4e2c85610c2d5f2e62d6eaeac1662734649b7',
@@ -775,13 +778,13 @@ const isogenyMapG1 = isogenyMap(Fp, [
     ],
 ].map((i) => i.map((j) => BigInt(j))));
 // SWU Map - Fp2 to G2': y² = x³ + 240i * x + 1012 + 1012i
-const G2_SWU = mapToCurveSimpleSWU(Fp2, {
+const G2_SWU = (0, weierstrass_js_1.mapToCurveSimpleSWU)(Fp2, {
     A: Fp2.create({ c0: Fp.create(_0n), c1: Fp.create(BigInt(240)) }),
     B: Fp2.create({ c0: Fp.create(BigInt(1012)), c1: Fp.create(BigInt(1012)) }),
     Z: Fp2.create({ c0: Fp.create(BigInt(-2)), c1: Fp.create(BigInt(-1)) }), // Z: -(2 + I)
 });
 // Optimized SWU Map - Fp to G1
-const G1_SWU = mapToCurveSimpleSWU(Fp, {
+const G1_SWU = (0, weierstrass_js_1.mapToCurveSimpleSWU)(Fp, {
     A: Fp.create(BigInt('0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d')),
     B: Fp.create(BigInt('0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0')),
     Z: Fp.create(BigInt(11)),
@@ -846,7 +849,7 @@ const htfDefaults = Object.freeze({
     // Hash functions for: expand_message_xmd is appropriate for use with a
     // wide range of hash functions, including SHA-2, SHA-3, BLAKE2, and others.
     // BBS+ uses blake2: https://github.com/hyperledger/aries-framework-go/issues/2247
-    hash: sha256,
+    hash: sha256_1.sha256,
 });
 // Encoding utils
 // Point on G1 curve: (x, y)
@@ -854,21 +857,21 @@ const C_BIT_POS = Fp.BITS; // C_bit, compression bit for serialization flag
 const I_BIT_POS = Fp.BITS + 1; // I_bit, point-at-infinity bit for serialization flag
 const S_BIT_POS = Fp.BITS + 2; // S_bit, sign bit for serialization flag
 // Compressed point of infinity
-const COMPRESSED_ZERO = Fp.toBytes(bitSet(bitSet(_0n, I_BIT_POS, true), S_BIT_POS, true)); // set compressed & point-at-infinity bits
+const COMPRESSED_ZERO = Fp.toBytes((0, utils_js_1.bitSet)((0, utils_js_1.bitSet)(_0n, I_BIT_POS, true), S_BIT_POS, true)); // set compressed & point-at-infinity bits
 function signatureG2ToRawBytes(point) {
     // NOTE: by some reasons it was missed in bls12-381, looks like bug
     point.assertValidity();
     const len = Fp.BYTES;
-    if (point.equals(bls12_381.G2.ProjectivePoint.ZERO))
-        return concatB(COMPRESSED_ZERO, numberToBytesBE(_0n, len));
+    if (point.equals(exports.bls12_381.G2.ProjectivePoint.ZERO))
+        return (0, utils_js_1.concatBytes)(COMPRESSED_ZERO, (0, utils_js_1.numberToBytesBE)(_0n, len));
     const { x, y } = point.toAffine();
     const { re: x0, im: x1 } = Fp2.reim(x);
     const { re: y0, im: y1 } = Fp2.reim(y);
     const tmp = y1 > _0n ? y1 * _2n : y0 * _2n;
     const aflag1 = Boolean((tmp / Fp.ORDER) & _1n);
-    const z1 = bitSet(bitSet(x1, 381, aflag1), S_BIT_POS, true);
+    const z1 = (0, utils_js_1.bitSet)((0, utils_js_1.bitSet)(x1, 381, aflag1), S_BIT_POS, true);
     const z2 = x0;
-    return concatB(numberToBytesBE(z1, len), numberToBytesBE(z2, len));
+    return (0, utils_js_1.concatBytes)((0, utils_js_1.numberToBytesBE)(z1, len), (0, utils_js_1.numberToBytesBE)(z2, len));
 }
 // To verify curve parameters, see pairing-friendly-curves spec:
 // https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-pairing-friendly-curves-11
@@ -880,7 +883,7 @@ function signatureG2ToRawBytes(point) {
 // Fp₂(v) / (v³ - ξ) where ξ = u + 1
 // Fp₆(w) / (w² - γ) where γ = v
 // Here goes constants && point encoding format
-export const bls12_381 = bls({
+exports.bls12_381 = (0, bls_js_1.bls)({
     // Fields
     fields: {
         Fp,
@@ -914,8 +917,8 @@ export const bls12_381 = bls({
             const cubicRootOfUnityModP = BigInt('0x5f19672fdf76ce51ba69c6076a0f77eaddb3a93be6f89688de17d813620a00022e01fffffffefffe');
             const phi = new c(Fp.mul(point.px, cubicRootOfUnityModP), point.py, point.pz);
             // todo: unroll
-            const xP = point.multiplyUnsafe(bls12_381.params.x).negate(); // [x]P
-            const u2P = xP.multiplyUnsafe(bls12_381.params.x); // [u2]P
+            const xP = point.multiplyUnsafe(exports.bls12_381.params.x).negate(); // [x]P
+            const u2P = xP.multiplyUnsafe(exports.bls12_381.params.x); // [u2]P
             return u2P.equals(phi);
             // https://eprint.iacr.org/2019/814.pdf
             // (z² − 1)/3
@@ -933,7 +936,7 @@ export const bls12_381 = bls({
         // https://eprint.iacr.org/2019/403
         clearCofactor: (_c, point) => {
             // return this.multiplyUnsafe(CURVE.h);
-            return point.multiplyUnsafe(bls12_381.params.x).add(point); // x*P + P
+            return point.multiplyUnsafe(exports.bls12_381.params.x).add(point); // x*P + P
         },
         mapToCurve: (scalars) => {
             const { x, y } = G1_SWU(Fp.create(scalars[0]));
@@ -944,17 +947,17 @@ export const bls12_381 = bls({
             if (bytes.length === 48) {
                 // TODO: Fp.bytes
                 const P = Fp.ORDER;
-                const compressedValue = bytesToNumberBE(bytes);
-                const bflag = bitGet(compressedValue, I_BIT_POS);
+                const compressedValue = (0, utils_js_1.bytesToNumberBE)(bytes);
+                const bflag = (0, utils_js_1.bitGet)(compressedValue, I_BIT_POS);
                 // Zero
                 if (bflag === _1n)
                     return { x: _0n, y: _0n };
                 const x = Fp.create(compressedValue & Fp.MASK);
-                const right = Fp.add(Fp.pow(x, _3n), Fp.create(bls12_381.params.G1b)); // y² = x³ + b
+                const right = Fp.add(Fp.pow(x, _3n), Fp.create(exports.bls12_381.params.G1b)); // y² = x³ + b
                 let y = Fp.sqrt(right);
                 if (!y)
                     throw new Error('Invalid compressed G1 point');
-                const aflag = bitGet(compressedValue, C_BIT_POS);
+                const aflag = (0, utils_js_1.bitGet)(compressedValue, C_BIT_POS);
                 if ((y * _2n) / P !== aflag)
                     y = Fp.neg(y);
                 return { x: Fp.create(x), y: Fp.create(y) };
@@ -962,9 +965,9 @@ export const bls12_381 = bls({
             else if (bytes.length === 96) {
                 // Check if the infinity flag is set
                 if ((bytes[0] & (1 << 6)) !== 0)
-                    return bls12_381.G1.ProjectivePoint.ZERO.toAffine();
-                const x = bytesToNumberBE(bytes.subarray(0, Fp.BYTES));
-                const y = bytesToNumberBE(bytes.subarray(Fp.BYTES));
+                    return exports.bls12_381.G1.ProjectivePoint.ZERO.toAffine();
+                const x = (0, utils_js_1.bytesToNumberBE)(bytes.subarray(0, Fp.BYTES));
+                const y = (0, utils_js_1.bytesToNumberBE)(bytes.subarray(Fp.BYTES));
                 return { x: Fp.create(x), y: Fp.create(y) };
             }
             else {
@@ -979,18 +982,18 @@ export const bls12_381 = bls({
                     return COMPRESSED_ZERO.slice();
                 const P = Fp.ORDER;
                 let num;
-                num = bitSet(x, C_BIT_POS, Boolean((y * _2n) / P)); // set aflag
-                num = bitSet(num, S_BIT_POS, true);
-                return numberToBytesBE(num, Fp.BYTES);
+                num = (0, utils_js_1.bitSet)(x, C_BIT_POS, Boolean((y * _2n) / P)); // set aflag
+                num = (0, utils_js_1.bitSet)(num, S_BIT_POS, true);
+                return (0, utils_js_1.numberToBytesBE)(num, Fp.BYTES);
             }
             else {
                 if (isZero) {
                     // 2x PUBLIC_KEY_LENGTH
-                    const x = concatB(new Uint8Array([0x40]), new Uint8Array(2 * Fp.BYTES - 1));
+                    const x = (0, utils_js_1.concatBytes)(new Uint8Array([0x40]), new Uint8Array(2 * Fp.BYTES - 1));
                     return x;
                 }
                 else {
-                    return concatB(numberToBytesBE(x, Fp.BYTES), numberToBytesBE(y, Fp.BYTES));
+                    return (0, utils_js_1.concatBytes)((0, utils_js_1.numberToBytesBE)(x, Fp.BYTES), (0, utils_js_1.numberToBytesBE)(y, Fp.BYTES));
                 }
             }
         },
@@ -1029,7 +1032,7 @@ export const bls12_381 = bls({
         // It returns false for shitty points.
         // https://eprint.iacr.org/2021/1130.pdf
         isTorsionFree: (c, P) => {
-            return P.multiplyUnsafe(bls12_381.params.x).negate().equals(G2psi(c, P)); // ψ(P) == [u](P)
+            return P.multiplyUnsafe(exports.bls12_381.params.x).negate().equals(G2psi(c, P)); // ψ(P) == [u](P)
             // Older version: https://eprint.iacr.org/2019/814.pdf
             // Ψ²(P) => Ψ³(P) => [z]Ψ³(P) where z = -x => [z]Ψ³(P) - Ψ²(P) + P == O
             // return P.psi2().psi().mulNegX().subtract(psi2).add(P).isZero();
@@ -1039,7 +1042,7 @@ export const bls12_381 = bls({
         // https://eprint.iacr.org/2017/419.pdf
         // prettier-ignore
         clearCofactor: (c, P) => {
-            const x = bls12_381.params.x;
+            const x = exports.bls12_381.params.x;
             let t1 = P.multiplyUnsafe(x).negate(); // [-x]P
             let t2 = G2psi(c, P); // Ψ(P)
             let t3 = P.double(); // 2P
@@ -1062,9 +1065,9 @@ export const bls12_381 = bls({
             const bitI = m_byte & 0x40; // point at infinity bit
             const bitS = m_byte & 0x20; // sign bit
             const L = Fp.BYTES;
-            const slc = (b, from, to) => bytesToNumberBE(b.slice(from, to));
+            const slc = (b, from, to) => (0, utils_js_1.bytesToNumberBE)(b.slice(from, to));
             if (bytes.length === 96 && bitC) {
-                const b = bls12_381.params.G2b;
+                const b = exports.bls12_381.params.G2b;
                 const P = Fp.ORDER;
                 bytes[0] = bytes[0] & 0x1f; // clear flags
                 if (bitI) {
@@ -1104,39 +1107,39 @@ export const bls12_381 = bls({
             const { x, y } = point.toAffine();
             if (isCompressed) {
                 if (isZero)
-                    return concatB(COMPRESSED_ZERO, numberToBytesBE(_0n, len));
+                    return (0, utils_js_1.concatBytes)(COMPRESSED_ZERO, (0, utils_js_1.numberToBytesBE)(_0n, len));
                 const flag = Boolean(y.c1 === _0n ? (y.c0 * _2n) / P : (y.c1 * _2n) / P);
                 // set compressed & sign bits (looks like different offsets than for G1/Fp?)
-                let x_1 = bitSet(x.c1, C_BIT_POS, flag);
-                x_1 = bitSet(x_1, S_BIT_POS, true);
-                return concatB(numberToBytesBE(x_1, len), numberToBytesBE(x.c0, len));
+                let x_1 = (0, utils_js_1.bitSet)(x.c1, C_BIT_POS, flag);
+                x_1 = (0, utils_js_1.bitSet)(x_1, S_BIT_POS, true);
+                return (0, utils_js_1.concatBytes)((0, utils_js_1.numberToBytesBE)(x_1, len), (0, utils_js_1.numberToBytesBE)(x.c0, len));
             }
             else {
                 if (isZero)
-                    return concatB(new Uint8Array([0x40]), new Uint8Array(4 * len - 1)); // bytes[0] |= 1 << 6;
+                    return (0, utils_js_1.concatBytes)(new Uint8Array([0x40]), new Uint8Array(4 * len - 1)); // bytes[0] |= 1 << 6;
                 const { re: x0, im: x1 } = Fp2.reim(x);
                 const { re: y0, im: y1 } = Fp2.reim(y);
-                return concatB(numberToBytesBE(x1, len), numberToBytesBE(x0, len), numberToBytesBE(y1, len), numberToBytesBE(y0, len));
+                return (0, utils_js_1.concatBytes)((0, utils_js_1.numberToBytesBE)(x1, len), (0, utils_js_1.numberToBytesBE)(x0, len), (0, utils_js_1.numberToBytesBE)(y1, len), (0, utils_js_1.numberToBytesBE)(y0, len));
             }
         },
         Signature: {
             // TODO: Optimize, it's very slow because of sqrt.
             fromHex(hex) {
-                hex = ensureBytes('signatureHex', hex);
+                hex = (0, utils_js_1.ensureBytes)('signatureHex', hex);
                 const P = Fp.ORDER;
                 const half = hex.length / 2;
                 if (half !== 48 && half !== 96)
                     throw new Error('Invalid compressed signature length, must be 96 or 192');
-                const z1 = bytesToNumberBE(hex.slice(0, half));
-                const z2 = bytesToNumberBE(hex.slice(half));
+                const z1 = (0, utils_js_1.bytesToNumberBE)(hex.slice(0, half));
+                const z2 = (0, utils_js_1.bytesToNumberBE)(hex.slice(half));
                 // Indicates the infinity point
-                const bflag1 = bitGet(z1, I_BIT_POS);
+                const bflag1 = (0, utils_js_1.bitGet)(z1, I_BIT_POS);
                 if (bflag1 === _1n)
-                    return bls12_381.G2.ProjectivePoint.ZERO;
+                    return exports.bls12_381.G2.ProjectivePoint.ZERO;
                 const x1 = Fp.create(z1 & Fp.MASK);
                 const x2 = Fp.create(z2);
                 const x = Fp2.create({ c0: x2, c1: x1 });
-                const y2 = Fp2.add(Fp2.pow(x, _3n), bls12_381.params.G2b); // y² = x³ + 4
+                const y2 = Fp2.add(Fp2.pow(x, _3n), exports.bls12_381.params.G2b); // y² = x³ + 4
                 // The slow part
                 let y = Fp2.sqrt(y2);
                 if (!y)
@@ -1144,12 +1147,12 @@ export const bls12_381 = bls({
                 // Choose the y whose leftmost bit of the imaginary part is equal to the a_flag1
                 // If y1 happens to be zero, then use the bit of y0
                 const { re: y0, im: y1 } = Fp2.reim(y);
-                const aflag1 = bitGet(z1, 381);
+                const aflag1 = (0, utils_js_1.bitGet)(z1, 381);
                 const isGreater = y1 > _0n && (y1 * _2n) / P !== aflag1;
                 const isZero = y1 === _0n && (y0 * _2n) / P !== aflag1;
                 if (isGreater || isZero)
                     y = Fp2.neg(y);
-                const point = bls12_381.G2.ProjectivePoint.fromAffine({ x, y });
+                const point = exports.bls12_381.G2.ProjectivePoint.fromAffine({ x, y });
                 point.assertValidity();
                 return point;
             },
@@ -1157,7 +1160,7 @@ export const bls12_381 = bls({
                 return signatureG2ToRawBytes(point);
             },
             toHex(point) {
-                return bytesToHex(signatureG2ToRawBytes(point));
+                return (0, utils_js_1.bytesToHex)(signatureG2ToRawBytes(point));
             },
         },
     },
@@ -1166,7 +1169,7 @@ export const bls12_381 = bls({
         r: Fr.ORDER, // order; z⁴ − z² + 1; CURVE.n from other curves
     },
     htfDefaults,
-    hash: sha256,
-    randomBytes,
+    hash: sha256_1.sha256,
+    randomBytes: utils_1.randomBytes,
 });
 //# sourceMappingURL=bls12-381.js.map

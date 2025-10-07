@@ -1,11 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.encodeToCurve = exports.hashToCurve = exports.schnorr = exports.secp256k1 = void 0;
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-import { sha256 } from '@noble/hashes/sha256';
-import { randomBytes } from '@noble/hashes/utils';
-import { Field, mod, pow2 } from './abstract/modular.js';
-import { mapToCurveSimpleSWU } from './abstract/weierstrass.js';
-import { bytesToNumberBE, concatBytes, ensureBytes, numberToBytesBE } from './abstract/utils.js';
-import { createHasher, isogenyMap } from './abstract/hash-to-curve.js';
-import { createCurve } from './_shortw_utils.js';
+const sha256_1 = require("@noble/hashes/sha256");
+const utils_1 = require("@noble/hashes/utils");
+const modular_js_1 = require("./abstract/modular.js");
+const weierstrass_js_1 = require("./abstract/weierstrass.js");
+const utils_js_1 = require("./abstract/utils.js");
+const hash_to_curve_js_1 = require("./abstract/hash-to-curve.js");
+const _shortw_utils_js_1 = require("./_shortw_utils.js");
 const secp256k1P = BigInt('0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f');
 const secp256k1N = BigInt('0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141');
 const _1n = BigInt(1);
@@ -23,24 +26,24 @@ function sqrtMod(y) {
     const _23n = BigInt(23), _44n = BigInt(44), _88n = BigInt(88);
     const b2 = (y * y * y) % P; // x^3, 11
     const b3 = (b2 * b2 * y) % P; // x^7
-    const b6 = (pow2(b3, _3n, P) * b3) % P;
-    const b9 = (pow2(b6, _3n, P) * b3) % P;
-    const b11 = (pow2(b9, _2n, P) * b2) % P;
-    const b22 = (pow2(b11, _11n, P) * b11) % P;
-    const b44 = (pow2(b22, _22n, P) * b22) % P;
-    const b88 = (pow2(b44, _44n, P) * b44) % P;
-    const b176 = (pow2(b88, _88n, P) * b88) % P;
-    const b220 = (pow2(b176, _44n, P) * b44) % P;
-    const b223 = (pow2(b220, _3n, P) * b3) % P;
-    const t1 = (pow2(b223, _23n, P) * b22) % P;
-    const t2 = (pow2(t1, _6n, P) * b2) % P;
-    const root = pow2(t2, _2n, P);
+    const b6 = ((0, modular_js_1.pow2)(b3, _3n, P) * b3) % P;
+    const b9 = ((0, modular_js_1.pow2)(b6, _3n, P) * b3) % P;
+    const b11 = ((0, modular_js_1.pow2)(b9, _2n, P) * b2) % P;
+    const b22 = ((0, modular_js_1.pow2)(b11, _11n, P) * b11) % P;
+    const b44 = ((0, modular_js_1.pow2)(b22, _22n, P) * b22) % P;
+    const b88 = ((0, modular_js_1.pow2)(b44, _44n, P) * b44) % P;
+    const b176 = ((0, modular_js_1.pow2)(b88, _88n, P) * b88) % P;
+    const b220 = ((0, modular_js_1.pow2)(b176, _44n, P) * b44) % P;
+    const b223 = ((0, modular_js_1.pow2)(b220, _3n, P) * b3) % P;
+    const t1 = ((0, modular_js_1.pow2)(b223, _23n, P) * b22) % P;
+    const t2 = ((0, modular_js_1.pow2)(t1, _6n, P) * b2) % P;
+    const root = (0, modular_js_1.pow2)(t2, _2n, P);
     if (!Fp.eql(Fp.sqr(root), y))
         throw new Error('Cannot find square root');
     return root;
 }
-const Fp = Field(secp256k1P, undefined, undefined, { sqrt: sqrtMod });
-export const secp256k1 = createCurve({
+const Fp = (0, modular_js_1.Field)(secp256k1P, undefined, undefined, { sqrt: sqrtMod });
+exports.secp256k1 = (0, _shortw_utils_js_1.createCurve)({
     a: BigInt(0),
     b: BigInt(7),
     Fp,
@@ -67,8 +70,8 @@ export const secp256k1 = createCurve({
             const POW_2_128 = BigInt('0x100000000000000000000000000000000'); // (2n**128n).toString(16)
             const c1 = divNearest(b2 * k, n);
             const c2 = divNearest(-b1 * k, n);
-            let k1 = mod(k - c1 * a1 - c2 * a2, n);
-            let k2 = mod(-c1 * b1 - c2 * b2, n);
+            let k1 = (0, modular_js_1.mod)(k - c1 * a1 - c2 * a2, n);
+            let k2 = (0, modular_js_1.mod)(-c1 * b1 - c2 * b2, n);
             const k1neg = k1 > POW_2_128;
             const k2neg = k2 > POW_2_128;
             if (k1neg)
@@ -81,7 +84,7 @@ export const secp256k1 = createCurve({
             return { k1neg, k1, k2neg, k2 };
         },
     },
-}, sha256);
+}, sha256_1.sha256);
 // Schnorr signatures are superior to ECDSA from above. Below is Schnorr-specific BIP0340 code.
 // https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki
 const _0n = BigInt(0);
@@ -92,22 +95,22 @@ const TAGGED_HASH_PREFIXES = {};
 function taggedHash(tag, ...messages) {
     let tagP = TAGGED_HASH_PREFIXES[tag];
     if (tagP === undefined) {
-        const tagH = sha256(Uint8Array.from(tag, (c) => c.charCodeAt(0)));
-        tagP = concatBytes(tagH, tagH);
+        const tagH = (0, sha256_1.sha256)(Uint8Array.from(tag, (c) => c.charCodeAt(0)));
+        tagP = (0, utils_js_1.concatBytes)(tagH, tagH);
         TAGGED_HASH_PREFIXES[tag] = tagP;
     }
-    return sha256(concatBytes(tagP, ...messages));
+    return (0, sha256_1.sha256)((0, utils_js_1.concatBytes)(tagP, ...messages));
 }
 // ECDSA compact points are 33-byte. Schnorr is 32: we strip first byte 0x02 or 0x03
 const pointToBytes = (point) => point.toRawBytes(true).slice(1);
-const numTo32b = (n) => numberToBytesBE(n, 32);
-const modP = (x) => mod(x, secp256k1P);
-const modN = (x) => mod(x, secp256k1N);
-const Point = secp256k1.ProjectivePoint;
+const numTo32b = (n) => (0, utils_js_1.numberToBytesBE)(n, 32);
+const modP = (x) => (0, modular_js_1.mod)(x, secp256k1P);
+const modN = (x) => (0, modular_js_1.mod)(x, secp256k1N);
+const Point = exports.secp256k1.ProjectivePoint;
 const GmulAdd = (Q, a, b) => Point.BASE.multiplyAndAddUnsafe(Q, a, b);
 // Calculate point, scalar and bytes
 function schnorrGetExtPubKey(priv) {
-    let d_ = secp256k1.utils.normPrivateKeyToScalar(priv); // same method executed in fromPrivateKey
+    let d_ = exports.secp256k1.utils.normPrivateKeyToScalar(priv); // same method executed in fromPrivateKey
     let p = Point.fromPrivateKey(d_); // P = d'⋅G; 0 < d' < n check is done inside
     const scalar = p.hasEvenY() ? d_ : modN(-d_);
     return { scalar: scalar, bytes: pointToBytes(p) };
@@ -132,7 +135,7 @@ function lift_x(x) {
  * Create tagged hash, convert it to bigint, reduce modulo-n.
  */
 function challenge(...args) {
-    return modN(bytesToNumberBE(taggedHash('BIP0340/challenge', ...args)));
+    return modN((0, utils_js_1.bytesToNumberBE)(taggedHash('BIP0340/challenge', ...args)));
 }
 /**
  * Schnorr public key is just `x` coordinate of Point as per BIP340.
@@ -144,13 +147,13 @@ function schnorrGetPublicKey(privateKey) {
  * Creates Schnorr signature as per BIP340. Verifies itself before returning anything.
  * auxRand is optional and is not the sole source of k generation: bad CSPRNG won't be dangerous.
  */
-function schnorrSign(message, privateKey, auxRand = randomBytes(32)) {
-    const m = ensureBytes('message', message);
+function schnorrSign(message, privateKey, auxRand = (0, utils_1.randomBytes)(32)) {
+    const m = (0, utils_js_1.ensureBytes)('message', message);
     const { bytes: px, scalar: d } = schnorrGetExtPubKey(privateKey); // checks for isWithinCurveOrder
-    const a = ensureBytes('auxRand', auxRand, 32); // Auxiliary random data a: a 32-byte array
-    const t = numTo32b(d ^ bytesToNumberBE(taggedHash('BIP0340/aux', a))); // Let t be the byte-wise xor of bytes(d) and hash/aux(a)
+    const a = (0, utils_js_1.ensureBytes)('auxRand', auxRand, 32); // Auxiliary random data a: a 32-byte array
+    const t = numTo32b(d ^ (0, utils_js_1.bytesToNumberBE)(taggedHash('BIP0340/aux', a))); // Let t be the byte-wise xor of bytes(d) and hash/aux(a)
     const rand = taggedHash('BIP0340/nonce', t, px, m); // Let rand = hash/nonce(t || bytes(P) || m)
-    const k_ = modN(bytesToNumberBE(rand)); // Let k' = int(rand) mod n
+    const k_ = modN((0, utils_js_1.bytesToNumberBE)(rand)); // Let k' = int(rand) mod n
     if (k_ === _0n)
         throw new Error('sign failed: k is zero'); // Fail if k' = 0.
     const { bytes: rx, scalar: k } = schnorrGetExtPubKey(k_); // Let R = k'⋅G.
@@ -168,15 +171,15 @@ function schnorrSign(message, privateKey, auxRand = randomBytes(32)) {
  * Will swallow errors & return false except for initial type validation of arguments.
  */
 function schnorrVerify(signature, message, publicKey) {
-    const sig = ensureBytes('signature', signature, 64);
-    const m = ensureBytes('message', message);
-    const pub = ensureBytes('publicKey', publicKey, 32);
+    const sig = (0, utils_js_1.ensureBytes)('signature', signature, 64);
+    const m = (0, utils_js_1.ensureBytes)('message', message);
+    const pub = (0, utils_js_1.ensureBytes)('publicKey', publicKey, 32);
     try {
-        const P = lift_x(bytesToNumberBE(pub)); // P = lift_x(int(pk)); fail if that fails
-        const r = bytesToNumberBE(sig.subarray(0, 32)); // Let r = int(sig[0:32]); fail if r ≥ p.
+        const P = lift_x((0, utils_js_1.bytesToNumberBE)(pub)); // P = lift_x(int(pk)); fail if that fails
+        const r = (0, utils_js_1.bytesToNumberBE)(sig.subarray(0, 32)); // Let r = int(sig[0:32]); fail if r ≥ p.
         if (!fe(r))
             return false;
-        const s = bytesToNumberBE(sig.subarray(32, 64)); // Let s = int(sig[32:64]); fail if s ≥ n.
+        const s = (0, utils_js_1.bytesToNumberBE)(sig.subarray(32, 64)); // Let s = int(sig[32:64]); fail if s ≥ n.
         if (!ge(s))
             return false;
         const e = challenge(numTo32b(r), pointToBytes(P), m); // int(challenge(bytes(r)||bytes(P)||m))%n
@@ -189,21 +192,21 @@ function schnorrVerify(signature, message, publicKey) {
         return false;
     }
 }
-export const schnorr = /* @__PURE__ */ (() => ({
+exports.schnorr = (() => ({
     getPublicKey: schnorrGetPublicKey,
     sign: schnorrSign,
     verify: schnorrVerify,
     utils: {
-        randomPrivateKey: secp256k1.utils.randomPrivateKey,
+        randomPrivateKey: exports.secp256k1.utils.randomPrivateKey,
         lift_x,
         pointToBytes,
-        numberToBytesBE,
-        bytesToNumberBE,
+        numberToBytesBE: utils_js_1.numberToBytesBE,
+        bytesToNumberBE: utils_js_1.bytesToNumberBE,
         taggedHash,
-        mod,
+        mod: modular_js_1.mod,
     },
 }))();
-const isoMap = /* @__PURE__ */ (() => isogenyMap(Fp, [
+const isoMap = /* @__PURE__ */ (() => (0, hash_to_curve_js_1.isogenyMap)(Fp, [
     // xNum
     [
         '0x8e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38e38daaaaa8c7',
@@ -232,12 +235,12 @@ const isoMap = /* @__PURE__ */ (() => isogenyMap(Fp, [
         '0x0000000000000000000000000000000000000000000000000000000000000001', // LAST 1
     ],
 ].map((i) => i.map((j) => BigInt(j)))))();
-const mapSWU = /* @__PURE__ */ (() => mapToCurveSimpleSWU(Fp, {
+const mapSWU = /* @__PURE__ */ (() => (0, weierstrass_js_1.mapToCurveSimpleSWU)(Fp, {
     A: BigInt('0x3f8731abdd661adca08a5558f0f5d272e953d363cb6f0e5d405447c01a444533'),
     B: BigInt('1771'),
     Z: Fp.create(BigInt('-11')),
 }))();
-const htf = /* @__PURE__ */ (() => createHasher(secp256k1.ProjectivePoint, (scalars) => {
+const htf = /* @__PURE__ */ (() => (0, hash_to_curve_js_1.createHasher)(exports.secp256k1.ProjectivePoint, (scalars) => {
     const { x, y } = mapSWU(Fp.create(scalars[0]));
     return isoMap(x, y);
 }, {
@@ -247,8 +250,8 @@ const htf = /* @__PURE__ */ (() => createHasher(secp256k1.ProjectivePoint, (scal
     m: 1,
     k: 128,
     expand: 'xmd',
-    hash: sha256,
+    hash: sha256_1.sha256,
 }))();
-export const hashToCurve = /* @__PURE__ */ (() => htf.hashToCurve)();
-export const encodeToCurve = /* @__PURE__ */ (() => htf.encodeToCurve)();
+exports.hashToCurve = (() => htf.hashToCurve)();
+exports.encodeToCurve = (() => htf.encodeToCurve)();
 //# sourceMappingURL=secp256k1.js.map

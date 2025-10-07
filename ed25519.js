@@ -1,11 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.hash_to_ristretto255 = exports.hashToRistretto255 = exports.RistrettoPoint = exports.encodeToCurve = exports.hashToCurve = exports.edwardsToMontgomeryPriv = exports.edwardsToMontgomery = exports.edwardsToMontgomeryPub = exports.x25519 = exports.ed25519ph = exports.ed25519ctx = exports.ed25519 = exports.ED25519_TORSION_SUBGROUP = void 0;
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-import { sha512 } from '@noble/hashes/sha512';
-import { concatBytes, randomBytes, utf8ToBytes } from '@noble/hashes/utils';
-import { twistedEdwards } from './abstract/edwards.js';
-import { montgomery } from './abstract/montgomery.js';
-import { Field, FpSqrtEven, isNegativeLE, mod, pow2 } from './abstract/modular.js';
-import { bytesToHex, bytesToNumberLE, ensureBytes, equalBytes, numberToBytesLE, } from './abstract/utils.js';
-import { createHasher, expand_message_xmd } from './abstract/hash-to-curve.js';
+const sha512_1 = require("@noble/hashes/sha512");
+const utils_1 = require("@noble/hashes/utils");
+const edwards_js_1 = require("./abstract/edwards.js");
+const montgomery_js_1 = require("./abstract/montgomery.js");
+const modular_js_1 = require("./abstract/modular.js");
+const utils_js_1 = require("./abstract/utils.js");
+const hash_to_curve_js_1 = require("./abstract/hash-to-curve.js");
 /**
  * ed25519 Twisted Edwards curve with following addons:
  * - X25519 ECDH
@@ -23,16 +26,16 @@ function ed25519_pow_2_252_3(x) {
     const P = ED25519_P;
     const x2 = (x * x) % P;
     const b2 = (x2 * x) % P; // x^3, 11
-    const b4 = (pow2(b2, _2n, P) * b2) % P; // x^15, 1111
-    const b5 = (pow2(b4, _1n, P) * x) % P; // x^31
-    const b10 = (pow2(b5, _5n, P) * b5) % P;
-    const b20 = (pow2(b10, _10n, P) * b10) % P;
-    const b40 = (pow2(b20, _20n, P) * b20) % P;
-    const b80 = (pow2(b40, _40n, P) * b40) % P;
-    const b160 = (pow2(b80, _80n, P) * b80) % P;
-    const b240 = (pow2(b160, _80n, P) * b80) % P;
-    const b250 = (pow2(b240, _10n, P) * b10) % P;
-    const pow_p_5_8 = (pow2(b250, _2n, P) * x) % P;
+    const b4 = ((0, modular_js_1.pow2)(b2, _2n, P) * b2) % P; // x^15, 1111
+    const b5 = ((0, modular_js_1.pow2)(b4, _1n, P) * x) % P; // x^31
+    const b10 = ((0, modular_js_1.pow2)(b5, _5n, P) * b5) % P;
+    const b20 = ((0, modular_js_1.pow2)(b10, _10n, P) * b10) % P;
+    const b40 = ((0, modular_js_1.pow2)(b20, _20n, P) * b20) % P;
+    const b80 = ((0, modular_js_1.pow2)(b40, _40n, P) * b40) % P;
+    const b160 = ((0, modular_js_1.pow2)(b80, _80n, P) * b80) % P;
+    const b240 = ((0, modular_js_1.pow2)(b160, _80n, P) * b80) % P;
+    const b250 = ((0, modular_js_1.pow2)(b240, _10n, P) * b10) % P;
+    const pow_p_5_8 = ((0, modular_js_1.pow2)(b250, _2n, P) * x) % P;
     // ^ To pow to (p+3)/8, multiply it by x.
     return { pow_p_5_8, b2 };
 }
@@ -49,27 +52,27 @@ function adjustScalarBytes(bytes) {
 // sqrt(u/v)
 function uvRatio(u, v) {
     const P = ED25519_P;
-    const v3 = mod(v * v * v, P); // v³
-    const v7 = mod(v3 * v3 * v, P); // v⁷
+    const v3 = (0, modular_js_1.mod)(v * v * v, P); // v³
+    const v7 = (0, modular_js_1.mod)(v3 * v3 * v, P); // v⁷
     // (p+3)/8 and (p-5)/8
     const pow = ed25519_pow_2_252_3(u * v7).pow_p_5_8;
-    let x = mod(u * v3 * pow, P); // (uv³)(uv⁷)^(p-5)/8
-    const vx2 = mod(v * x * x, P); // vx²
+    let x = (0, modular_js_1.mod)(u * v3 * pow, P); // (uv³)(uv⁷)^(p-5)/8
+    const vx2 = (0, modular_js_1.mod)(v * x * x, P); // vx²
     const root1 = x; // First root candidate
-    const root2 = mod(x * ED25519_SQRT_M1, P); // Second root candidate
+    const root2 = (0, modular_js_1.mod)(x * ED25519_SQRT_M1, P); // Second root candidate
     const useRoot1 = vx2 === u; // If vx² = u (mod p), x is a square root
-    const useRoot2 = vx2 === mod(-u, P); // If vx² = -u, set x <-- x * 2^((p-1)/4)
-    const noRoot = vx2 === mod(-u * ED25519_SQRT_M1, P); // There is no valid root, vx² = -u√(-1)
+    const useRoot2 = vx2 === (0, modular_js_1.mod)(-u, P); // If vx² = -u, set x <-- x * 2^((p-1)/4)
+    const noRoot = vx2 === (0, modular_js_1.mod)(-u * ED25519_SQRT_M1, P); // There is no valid root, vx² = -u√(-1)
     if (useRoot1)
         x = root1;
     if (useRoot2 || noRoot)
         x = root2; // We return root2 anyway, for const-time
-    if (isNegativeLE(x, P))
-        x = mod(-x, P);
+    if ((0, modular_js_1.isNegativeLE)(x, P))
+        x = (0, modular_js_1.mod)(-x, P);
     return { isValid: useRoot1 || useRoot2, value: x };
 }
 // Just in case
-export const ED25519_TORSION_SUBGROUP = [
+exports.ED25519_TORSION_SUBGROUP = [
     '0100000000000000000000000000000000000000000000000000000000000000',
     'c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac037a',
     '0000000000000000000000000000000000000000000000000000000000000080',
@@ -79,7 +82,7 @@ export const ED25519_TORSION_SUBGROUP = [
     '0000000000000000000000000000000000000000000000000000000000000000',
     'c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac03fa',
 ];
-const Fp = Field(ED25519_P, undefined, true);
+const Fp = (0, modular_js_1.Field)(ED25519_P, undefined, true);
 const ed25519Defaults = {
     // Param: a
     a: BigInt(-1),
@@ -96,30 +99,30 @@ const ed25519Defaults = {
     // Base point (x, y) aka generator point
     Gx: BigInt('15112221349535400772501151409588531511454012693041857206046113283949847762202'),
     Gy: BigInt('46316835694926478169428394003475163141307993866256225615783033603165251855960'),
-    hash: sha512,
-    randomBytes,
+    hash: sha512_1.sha512,
+    randomBytes: utils_1.randomBytes,
     adjustScalarBytes,
     // dom2
     // Ratio of u to v. Allows us to combine inversion and square root. Uses algo from RFC8032 5.1.3.
     // Constant-time, u/√v
     uvRatio,
 };
-export const ed25519 = /* @__PURE__ */ twistedEdwards(ed25519Defaults);
+exports.ed25519 = (0, edwards_js_1.twistedEdwards)(ed25519Defaults);
 function ed25519_domain(data, ctx, phflag) {
     if (ctx.length > 255)
         throw new Error('Context is too big');
-    return concatBytes(utf8ToBytes('SigEd25519 no Ed25519 collisions'), new Uint8Array([phflag ? 1 : 0, ctx.length]), ctx, data);
+    return (0, utils_1.concatBytes)((0, utils_1.utf8ToBytes)('SigEd25519 no Ed25519 collisions'), new Uint8Array([phflag ? 1 : 0, ctx.length]), ctx, data);
 }
-export const ed25519ctx = /* @__PURE__ */ twistedEdwards({
+exports.ed25519ctx = (0, edwards_js_1.twistedEdwards)({
     ...ed25519Defaults,
     domain: ed25519_domain,
 });
-export const ed25519ph = /* @__PURE__ */ twistedEdwards({
+exports.ed25519ph = (0, edwards_js_1.twistedEdwards)({
     ...ed25519Defaults,
     domain: ed25519_domain,
-    prehash: sha512,
+    prehash: sha512_1.sha512,
 });
-export const x25519 = /* @__PURE__ */ (() => montgomery({
+exports.x25519 = (() => (0, montgomery_js_1.montgomery)({
     P: ED25519_P,
     a: BigInt(486662),
     montgomeryBits: 255,
@@ -129,10 +132,10 @@ export const x25519 = /* @__PURE__ */ (() => montgomery({
         const P = ED25519_P;
         // x^(p-2) aka x^(2^255-21)
         const { pow_p_5_8, b2 } = ed25519_pow_2_252_3(x);
-        return mod(pow2(pow_p_5_8, BigInt(3), P) * b2, P);
+        return (0, modular_js_1.mod)((0, modular_js_1.pow2)(pow_p_5_8, BigInt(3), P) * b2, P);
     },
     adjustScalarBytes,
-    randomBytes,
+    randomBytes: utils_1.randomBytes,
 }))();
 /**
  * Converts ed25519 public key to x25519 public key. Uses formula:
@@ -143,12 +146,13 @@ export const x25519 = /* @__PURE__ */ (() => montgomery({
  *   const aPriv = x25519.utils.randomPrivateKey();
  *   x25519.getSharedSecret(aPriv, edwardsToMontgomeryPub(someonesPub))
  */
-export function edwardsToMontgomeryPub(edwardsPub) {
-    const { y } = ed25519.ExtendedPoint.fromHex(edwardsPub);
+function edwardsToMontgomeryPub(edwardsPub) {
+    const { y } = exports.ed25519.ExtendedPoint.fromHex(edwardsPub);
     const _1n = BigInt(1);
     return Fp.toBytes(Fp.create((_1n + y) * Fp.inv(_1n - y)));
 }
-export const edwardsToMontgomery = edwardsToMontgomeryPub; // deprecated
+exports.edwardsToMontgomeryPub = edwardsToMontgomeryPub;
+exports.edwardsToMontgomery = edwardsToMontgomeryPub; // deprecated
 /**
  * Converts ed25519 secret key to x25519 secret key.
  * @example
@@ -156,10 +160,11 @@ export const edwardsToMontgomery = edwardsToMontgomeryPub; // deprecated
  *   const aPriv = ed25519.utils.randomPrivateKey();
  *   x25519.getSharedSecret(edwardsToMontgomeryPriv(aPriv), someonesPub)
  */
-export function edwardsToMontgomeryPriv(edwardsPriv) {
+function edwardsToMontgomeryPriv(edwardsPriv) {
     const hashed = ed25519Defaults.hash(edwardsPriv.subarray(0, 32));
     return ed25519Defaults.adjustScalarBytes(hashed).subarray(0, 32);
 }
+exports.edwardsToMontgomeryPriv = edwardsToMontgomeryPriv;
 // Hash To Curve Elligator2 Map (NOTE: different from ristretto255 elligator)
 // NOTE: very important part is usage of FpSqrtEven for ELL2_C1_EDWARDS, since
 // SageMath returns different root first and everything falls apart
@@ -210,7 +215,7 @@ function map_to_curve_elligator2_curve25519(u) {
     y = Fp.cmov(y, Fp.neg(y), e3 !== e4); //  38.   y = CMOV(y, -y, e3 XOR e4)
     return { xMn: xn, xMd: xd, yMn: y, yMd: _1n }; //  39. return (xn, xd, y, 1)
 }
-const ELL2_C1_EDWARDS = FpSqrtEven(Fp, Fp.neg(BigInt(486664))); // sgn0(c1) MUST equal 0
+const ELL2_C1_EDWARDS = (0, modular_js_1.FpSqrtEven)(Fp, Fp.neg(BigInt(486664))); // sgn0(c1) MUST equal 0
 function map_to_curve_elligator2_edwards25519(u) {
     const { xMn, xMd, yMn, yMd } = map_to_curve_elligator2_curve25519(u); //  1.  (xMn, xMd, yMn, yMd) =
     // map_to_curve_elligator2_curve25519(u)
@@ -228,17 +233,17 @@ function map_to_curve_elligator2_edwards25519(u) {
     const inv = Fp.invertBatch([xd, yd]); // batch division
     return { x: Fp.mul(xn, inv[0]), y: Fp.mul(yn, inv[1]) }; //  13. return (xn, xd, yn, yd)
 }
-const htf = /* @__PURE__ */ (() => createHasher(ed25519.ExtendedPoint, (scalars) => map_to_curve_elligator2_edwards25519(scalars[0]), {
+const htf = /* @__PURE__ */ (() => (0, hash_to_curve_js_1.createHasher)(exports.ed25519.ExtendedPoint, (scalars) => map_to_curve_elligator2_edwards25519(scalars[0]), {
     DST: 'edwards25519_XMD:SHA-512_ELL2_RO_',
     encodeDST: 'edwards25519_XMD:SHA-512_ELL2_NU_',
     p: Fp.ORDER,
     m: 1,
     k: 128,
     expand: 'xmd',
-    hash: sha512,
+    hash: sha512_1.sha512,
 }))();
-export const hashToCurve = /* @__PURE__ */ (() => htf.hashToCurve)();
-export const encodeToCurve = /* @__PURE__ */ (() => htf.encodeToCurve)();
+exports.hashToCurve = (() => htf.hashToCurve)();
+exports.encodeToCurve = (() => htf.encodeToCurve)();
 function assertRstPoint(other) {
     if (!(other instanceof RistPoint))
         throw new Error('RistrettoPoint expected');
@@ -256,20 +261,20 @@ const D_MINUS_ONE_SQ = BigInt('4044083434630853685810104246932319082624839914623
 // Calculates 1/√(number)
 const invertSqrt = (number) => uvRatio(_1n, number);
 const MAX_255B = BigInt('0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-const bytes255ToNumberLE = (bytes) => ed25519.CURVE.Fp.create(bytesToNumberLE(bytes) & MAX_255B);
+const bytes255ToNumberLE = (bytes) => exports.ed25519.CURVE.Fp.create((0, utils_js_1.bytesToNumberLE)(bytes) & MAX_255B);
 // Computes Elligator map for Ristretto
 // https://ristretto.group/formulas/elligator.html
 function calcElligatorRistrettoMap(r0) {
-    const { d } = ed25519.CURVE;
-    const P = ed25519.CURVE.Fp.ORDER;
-    const mod = ed25519.CURVE.Fp.create;
+    const { d } = exports.ed25519.CURVE;
+    const P = exports.ed25519.CURVE.Fp.ORDER;
+    const mod = exports.ed25519.CURVE.Fp.create;
     const r = mod(SQRT_M1 * r0 * r0); // 1
     const Ns = mod((r + _1n) * ONE_MINUS_D_SQ); // 2
     let c = BigInt(-1); // 3
     const D = mod((c - d * r) * mod(r + d)); // 4
     let { isValid: Ns_D_is_sq, value: s } = uvRatio(Ns, D); // 5
     let s_ = mod(s * r0); // 6
-    if (!isNegativeLE(s_, P))
+    if (!(0, modular_js_1.isNegativeLE)(s_, P))
         s_ = mod(-s_);
     if (!Ns_D_is_sq)
         s = s_; // 7
@@ -281,7 +286,7 @@ function calcElligatorRistrettoMap(r0) {
     const W1 = mod(Nt * SQRT_AD_MINUS_ONE); // 11
     const W2 = mod(_1n - s2); // 12
     const W3 = mod(_1n + s2); // 13
-    return new ed25519.ExtendedPoint(mod(W0 * W3), mod(W2 * W1), mod(W1 * W3), mod(W0 * W2));
+    return new exports.ed25519.ExtendedPoint(mod(W0 * W3), mod(W2 * W1), mod(W1 * W3), mod(W0 * W2));
 }
 /**
  * Each ed25519/ExtendedPoint has 8 different equivalent points. This can be
@@ -297,7 +302,7 @@ class RistPoint {
         this.ep = ep;
     }
     static fromAffine(ap) {
-        return new RistPoint(ed25519.ExtendedPoint.fromAffine(ap));
+        return new RistPoint(exports.ed25519.ExtendedPoint.fromAffine(ap));
     }
     /**
      * Takes uniform output of 64-byte hash function like sha512 and converts it to `RistrettoPoint`.
@@ -307,7 +312,7 @@ class RistPoint {
      * @param hex 64-byte output of a hash function
      */
     static hashToCurve(hex) {
-        hex = ensureBytes('ristrettoHash', hex, 64);
+        hex = (0, utils_js_1.ensureBytes)('ristrettoHash', hex, 64);
         const r1 = bytes255ToNumberLE(hex.slice(0, 32));
         const R1 = calcElligatorRistrettoMap(r1);
         const r2 = bytes255ToNumberLE(hex.slice(32, 64));
@@ -320,15 +325,15 @@ class RistPoint {
      * @param hex Ristretto-encoded 32 bytes. Not every 32-byte string is valid ristretto encoding
      */
     static fromHex(hex) {
-        hex = ensureBytes('ristrettoHex', hex, 32);
-        const { a, d } = ed25519.CURVE;
-        const P = ed25519.CURVE.Fp.ORDER;
-        const mod = ed25519.CURVE.Fp.create;
+        hex = (0, utils_js_1.ensureBytes)('ristrettoHex', hex, 32);
+        const { a, d } = exports.ed25519.CURVE;
+        const P = exports.ed25519.CURVE.Fp.ORDER;
+        const mod = exports.ed25519.CURVE.Fp.create;
         const emsg = 'RistrettoPoint.fromHex: the hex is not valid encoding of RistrettoPoint';
         const s = bytes255ToNumberLE(hex);
         // 1. Check that s_bytes is the canonical encoding of a field element, or else abort.
         // 3. Check that s is non-negative, or else abort
-        if (!equalBytes(numberToBytesLE(s, 32), hex) || isNegativeLE(s, P))
+        if (!(0, utils_js_1.equalBytes)((0, utils_js_1.numberToBytesLE)(s, 32), hex) || (0, modular_js_1.isNegativeLE)(s, P))
             throw new Error(emsg);
         const s2 = mod(s * s);
         const u1 = mod(_1n + a * s2); // 4 (a is -1)
@@ -340,13 +345,13 @@ class RistPoint {
         const Dx = mod(I * u2); // 8
         const Dy = mod(I * Dx * v); // 9
         let x = mod((s + s) * Dx); // 10
-        if (isNegativeLE(x, P))
+        if ((0, modular_js_1.isNegativeLE)(x, P))
             x = mod(-x); // 10
         const y = mod(u1 * Dy); // 11
         const t = mod(x * y); // 12
-        if (!isValid || isNegativeLE(t, P) || y === _0n)
+        if (!isValid || (0, modular_js_1.isNegativeLE)(t, P) || y === _0n)
             throw new Error(emsg);
-        return new RistPoint(new ed25519.ExtendedPoint(x, y, _1n, t));
+        return new RistPoint(new exports.ed25519.ExtendedPoint(x, y, _1n, t));
     }
     /**
      * Encodes ristretto point to Uint8Array.
@@ -354,8 +359,8 @@ class RistPoint {
      */
     toRawBytes() {
         let { ex: x, ey: y, ez: z, et: t } = this.ep;
-        const P = ed25519.CURVE.Fp.ORDER;
-        const mod = ed25519.CURVE.Fp.create;
+        const P = exports.ed25519.CURVE.Fp.ORDER;
+        const mod = exports.ed25519.CURVE.Fp.create;
         const u1 = mod(mod(z + y) * mod(z - y)); // 1
         const u2 = mod(x * y); // 2
         // Square root always exists
@@ -365,7 +370,7 @@ class RistPoint {
         const D2 = mod(invsqrt * u2); // 5
         const zInv = mod(D1 * D2 * t); // 6
         let D; // 7
-        if (isNegativeLE(t * zInv, P)) {
+        if ((0, modular_js_1.isNegativeLE)(t * zInv, P)) {
             let _x = mod(y * SQRT_M1);
             let _y = mod(x * SQRT_M1);
             x = _x;
@@ -375,15 +380,15 @@ class RistPoint {
         else {
             D = D2; // 8
         }
-        if (isNegativeLE(x * zInv, P))
+        if ((0, modular_js_1.isNegativeLE)(x * zInv, P))
             y = mod(-y); // 9
         let s = mod((z - y) * D); // 10 (check footer's note, no sqrt(-a))
-        if (isNegativeLE(s, P))
+        if ((0, modular_js_1.isNegativeLE)(s, P))
             s = mod(-s);
-        return numberToBytesLE(s, 32); // 11
+        return (0, utils_js_1.numberToBytesLE)(s, 32); // 11
     }
     toHex() {
-        return bytesToHex(this.toRawBytes());
+        return (0, utils_js_1.bytesToHex)(this.toRawBytes());
     }
     toString() {
         return this.toHex();
@@ -393,7 +398,7 @@ class RistPoint {
         assertRstPoint(other);
         const { ex: X1, ey: Y1 } = this.ep;
         const { ex: X2, ey: Y2 } = other.ep;
-        const mod = ed25519.CURVE.Fp.create;
+        const mod = exports.ed25519.CURVE.Fp.create;
         // (x1 * y2 == y1 * x2) | (y1 * y2 == x1 * x2)
         const one = mod(X1 * Y2) === mod(Y1 * X2);
         const two = mod(Y1 * Y2) === mod(X1 * X2);
@@ -414,20 +419,21 @@ class RistPoint {
         return new RistPoint(this.ep.multiplyUnsafe(scalar));
     }
 }
-export const RistrettoPoint = /* @__PURE__ */ (() => {
+exports.RistrettoPoint = (() => {
     if (!RistPoint.BASE)
-        RistPoint.BASE = new RistPoint(ed25519.ExtendedPoint.BASE);
+        RistPoint.BASE = new RistPoint(exports.ed25519.ExtendedPoint.BASE);
     if (!RistPoint.ZERO)
-        RistPoint.ZERO = new RistPoint(ed25519.ExtendedPoint.ZERO);
+        RistPoint.ZERO = new RistPoint(exports.ed25519.ExtendedPoint.ZERO);
     return RistPoint;
 })();
 // Hashing to ristretto255. https://www.rfc-editor.org/rfc/rfc9380#appendix-B
-export const hashToRistretto255 = (msg, options) => {
+const hashToRistretto255 = (msg, options) => {
     const d = options.DST;
-    const DST = typeof d === 'string' ? utf8ToBytes(d) : d;
-    const uniform_bytes = expand_message_xmd(msg, DST, 64, sha512);
+    const DST = typeof d === 'string' ? (0, utils_1.utf8ToBytes)(d) : d;
+    const uniform_bytes = (0, hash_to_curve_js_1.expand_message_xmd)(msg, DST, 64, sha512_1.sha512);
     const P = RistPoint.hashToCurve(uniform_bytes);
     return P;
 };
-export const hash_to_ristretto255 = hashToRistretto255; // legacy
+exports.hashToRistretto255 = hashToRistretto255;
+exports.hash_to_ristretto255 = exports.hashToRistretto255; // legacy
 //# sourceMappingURL=ed25519.js.map
